@@ -1,7 +1,9 @@
 # 基于 Netty 4.1.37.Final 的源码分析
 
 ## 涉及内容
-+ 1、
++ 1、JAVA - BIO
++ 2、JAVA - NIO原理，以及JAVA-IO模型，reactor模型，select(),poll(),epoll()模型
++ 3、
 ## 使用方式
 + 1、尽量精通 Linux select(),poll(),epoll()模型，**必须精通** JAVA-NIO 网络编程
 + 2、深入理解《Scalable IO in Java》一书
