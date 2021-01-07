@@ -1,5 +1,12 @@
-# 基于 Netty 4.1.37.Final 版本的源码分析
+# 基于 Netty 4.1.37.Final 的源码分析
 
+## 涉及内容
++ 1、
+## 使用方式
++ 1、尽量精通 Linux select(),poll(),epoll()模型，**必须精通** JAVA-NIO 网络编程
++ 2、深入理解《Scalable IO in Java》一书
++ 3、编译运行代码，保证可以断点调试
++ 4、熟悉Netty的设计模式，熟悉Netty的API，然后就可以着手看源码了
 
 ## Netty Project
 + Netty is an asynchronous event-driven network application framework for rapid development of maintainable high performance protocol servers & clients.
