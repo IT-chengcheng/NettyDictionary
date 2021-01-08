@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
-public class ByteBuffer3 {
+public class ByteBuffer_File_read_write {
     public static void main(String[] args) throws Exception {
         FileOutputStream fileOutputStream=new FileOutputStream("dome4write.txt");
         FileInputStream fileInputStream=new FileInputStream("dome4read.txt");

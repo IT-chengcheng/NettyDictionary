@@ -2,7 +2,7 @@ package com.NIOStudy.Buffer;
 
 import java.nio.ByteBuffer;
 
-public class ByteBuffer5_slice {
+public class ByteBuffer_slice {
     public static void main(String[] args) {
         ByteBuffer byteBuffer=ByteBuffer.allocate(10);
         for(int i=0;i<byteBuffer.capacity();++i){

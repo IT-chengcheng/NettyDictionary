@@ -4,7 +4,7 @@ import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-public class ByteBuffer1 {
+public class ByteBuffer_File_read {
     public static void main(String[] args) throws Exception {
         FileInputStream fileInputStream=new FileInputStream("dome2.txt");
         FileChannel channel = fileInputStream.getChannel();
