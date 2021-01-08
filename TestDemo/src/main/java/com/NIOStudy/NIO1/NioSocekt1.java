@@ -44,7 +44,9 @@ public class NioSocekt1 {
 
                 int nReady = selector.select();//该方法会阻塞，其实底层就是执行了select函数
                 Set<SelectionKey> keys = selector.selectedKeys();
-                // keys()是感兴趣的key。selectedkeys（）是发生了事件的key
+                // keys()是感兴趣的key。可以理解为所有连接到 服务端的 socket 加上 ServerSocketChannel.socket()
+                // selectedkeys（）是发生了事件的key，可以理解为 所有连接到服务端的socket中 发生事件的socket（读写）加上新建立连接的socket
+                // 注意：上面两个的前提是  A B C 都注册到了 selector上，reactor模式下 A B注册到了 selector1，C 注册到了 selector2
                 System.out.println("发生的事件种类的数量" + keys.size());
                 Iterator<SelectionKey> ita = keys.iterator();
                 while (ita.hasNext()) {
