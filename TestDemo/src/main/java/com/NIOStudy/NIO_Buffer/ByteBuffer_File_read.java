@@ -1,4 +1,4 @@
-package com.NIOStudy.Buffer;
+package com.NIOStudy.NIO_Buffer;
 
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;

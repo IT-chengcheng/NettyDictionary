@@ -1,4 +1,4 @@
-package com.demo;
+package com.NettyStudy.demo2;
 
 
 import io.netty.buffer.Unpooled;
