@@ -51,12 +51,12 @@ public final class ThreadExecutorMap {
     public static Executor apply(final Executor executor, final EventExecutor eventExecutor) {
         ObjectUtil.checkNotNull(executor, "executor");
         ObjectUtil.checkNotNull(eventExecutor, "eventExecutor");
-        //executor=new ThreadPerTaskExecutor(newDefaultThreadFactory());
+        //executor=  ThreadPerTaskExecutor
         //eventExecutor=SingleThreadEventExecutor.this
         return new Executor() {
             @Override
             public void execute(final Runnable command) {
-                //apply(command, eventExecutor) 任然返回Runnable对象  真正执行时执行的是command.run方法
+                //apply(command, eventExecutor) 任意返回Runnable对象  真正执行时执行的是command.run方法
                 executor.execute(apply(command, eventExecutor));
             }
         };

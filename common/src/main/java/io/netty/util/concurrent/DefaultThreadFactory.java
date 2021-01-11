@@ -62,11 +62,12 @@ public class DefaultThreadFactory implements ThreadFactory {
     }
 
     public DefaultThreadFactory(Class<?> poolType, boolean daemon, int priority) {
-        //Thread.MAX_PRIORITY   ==>  线程可以拥有的最大优先级。  10
-        //poolType===>NioEventLoopGroup.class
-        //daemon =false    是否是守护线程，后台程序
-
-        //toPoolName()=nioEventLoopGroup
+        /**
+         * Thread.MAX_PRIORITY   ==>  线程可以拥有的最大优先级。  10
+         * poolType===>NioEventLoopGroup.class
+         * daemon =false    是否是守护线程，后台程序
+         * toPoolName() -> "nioEventLoopGroup"
+         */
         this(toPoolName(poolType), daemon, priority);
     }
 
@@ -96,10 +97,6 @@ public class DefaultThreadFactory implements ThreadFactory {
     }
 
     public DefaultThreadFactory(String poolName, boolean daemon, int priority, ThreadGroup threadGroup) {
-        //poolName=nioEventLoopGroup
-        //daemon =false    是否是守护进程，后台程序
-        //priority  ==>  线程可以拥有的最大优先级。  10
-        //threadGroup  线程组
 
         if (poolName == null) {
             throw new NullPointerException("poolName");
@@ -119,11 +116,7 @@ public class DefaultThreadFactory implements ThreadFactory {
     }
 
     public DefaultThreadFactory(String poolName, boolean daemon, int priority) {
-        //poolName=nioEventLoopGroup
-        //daemon =false    是否是守护进程，后台程序
-        //priority  ==>  线程可以拥有的最大优先级。  10
 
-        //System.getSecurityManager() == null     判断有没有安全管理器
         this(poolName, daemon, priority, System.getSecurityManager() == null ?
                 Thread.currentThread().getThreadGroup() : System.getSecurityManager().getThreadGroup());
     }

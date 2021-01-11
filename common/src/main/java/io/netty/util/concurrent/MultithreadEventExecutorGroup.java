@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class MultithreadEventExecutorGroup extends AbstractEventExecutorGroup {
 
+    // 存放 NioEventLoop 实例
     private final EventExecutor[] children;
     private final Set<EventExecutor> readonlyChildren;
     private final AtomicInteger terminatedChildren = new AtomicInteger();
@@ -55,33 +56,23 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
      * @param args              arguments which will passed to each {@link #newChild(Executor, Object...)} call
      */
     protected MultithreadEventExecutorGroup(int nThreads, Executor executor, Object... args) {
-        //nThreads默认为零 如果是0的话  就获取CPU核数的两倍  DEFAULT_EVENT_LOOP_THREADS==CPU核数的两倍
-        //executor默认为null
-        //SelectorProvider     ServerSocketChannel就是通过ServerSocketChannel.open()==》SelectorProvider.provider().openServerSocketChannel()创建的
-        //DefaultSelectStrategyFactory.INSTANCE===》new DefaultSelectStrategyFactory()
-        //RejectedExecutionHandlers.reject() ===》 new RejectedExecutionHandler()
-
-        //DefaultEventExecutorChooserFactory.INSTANCE  默认事件执行选择器工厂
+        /**
+         * nThreads默认为零
+         * executor默认为null
+         * nThreads如果不传默认是0  如果是0的话  就获取CPU核数的两倍  DEFAULT_EVENT_LOOP_THREADS==CPU核数的两倍
+         * DefaultEventExecutorChooserFactory.INSTANCE  默认事件执行选择器工厂
+         */
         this(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, args);
     }
 
+
     /**
-     * 创建一个新实例。.
-     *
-     * @param nThreads          这个实例将使用的线程数。
-     * @param executor         是要使用的执行器，如果使用默认值，则为{@code null}。
-     * @param chooserFactory    要使用的{@link EventExecutorChooserFactory}。
-     * @param args              参数将传递给每个{@link #newChild(Executor, Object…)}调用
+     * nThreads如果不传默认是0  如果是0的话  就获取CPU核数的两倍  DEFAULT_EVENT_LOOP_THREADS==CPU核数的两倍
+     * executor默认为null
+     * chooserFactory=new DefaultEventExecutorChooserFactory() 默认 事件执行策略工厂
+     * args参数: SelectorProvider DefaultSelectStrategyFactory  RejectedExecutionHandler
+     * 这些args会 在新建 NioEventLoop 时，当做参数传进去
      */
-
-    //nThreads如果不传默认是0  如果是0的话  就获取CPU核数的两倍  DEFAULT_EVENT_LOOP_THREADS==CPU核数的两倍
-    //executor默认为null
-    //chooserFactory=new DefaultEventExecutorChooserFactory() 默认 事件执行策略工厂
-
-    //args参数如下
-    //SelectorProvider     ServerSocketChannel就是通过ServerSocketChannel.open()==》SelectorProvider.provider().openServerSocketChannel()创建的
-    //DefaultSelectStrategyFactory.INSTANCE===》new DefaultSelectStrategyFactory()
-    //RejectedExecutionHandlers.reject() ===》 new RejectedExecutionHandler()
     protected MultithreadEventExecutorGroup(int nThreads, Executor executor,
                                             EventExecutorChooserFactory chooserFactory, Object... args) {
         if (nThreads <= 0) {
@@ -89,13 +80,14 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
         }
 
         if (executor == null) {
-            //newDefaultThreadFactory()=线程工厂  专门创建线程的
-            //newDefaultThreadFactory()调用的是 MultithreadEventLoopGroup.newDefaultThreadFactory()
-            //最终创建的是DefaultThreadFactory，他实现了继承自jdk的ThreadFactory
+            /**
+             * newDefaultThreadFactory() -> DefaultThreadFactory implement ThreadFactory
+             * ThreadFactory  接口方法为  ->  Thread newThread(Runnable r);
+             * ThreadPerTaskExecutor 很简单，仅仅是创建线程，并且start
+             */
             executor = new ThreadPerTaskExecutor(newDefaultThreadFactory());
         }
 
-        //nThreads如果不传默认是0  如果是0的话  就获取CPU核数的两倍  DEFAULT_EVENT_LOOP_THREADS==CPU核数的两倍
         children = new EventExecutor[nThreads];
 
         for (int i = 0; i < nThreads; i ++) {

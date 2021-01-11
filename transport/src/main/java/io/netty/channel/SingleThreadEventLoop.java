@@ -55,11 +55,11 @@ public abstract class SingleThreadEventLoop extends SingleThreadEventExecutor im
     protected SingleThreadEventLoop(EventLoopGroup parent, Executor executor,
                                     boolean addTaskWakesUp, int maxPendingTasks,
                                     RejectedExecutionHandler rejectedExecutionHandler) {
-        //NioEventLoopGroup.this
-        //executor=new ThreadPerTaskExecutor(newDefaultThreadFactory());
-        // addTaskWakesUp=false
-        //maxPendingTasks=2147483647  默认最大挂起任务
-        //rejectedExecutionHandler ===》 new RejectedExecutionHandler()
+        /**
+         *  parent -> NioEventLoopGroup
+         * executor -> ThreadPerTaskExecutor
+         * DEFAULT_MAX_PENDING_TASKS 默认是 2147483647
+         */
         super(parent, executor, addTaskWakesUp, maxPendingTasks, rejectedExecutionHandler);
 
         //tailTasks=new LinkedBlockingQueue<Runnable>(maxPendingTasks);

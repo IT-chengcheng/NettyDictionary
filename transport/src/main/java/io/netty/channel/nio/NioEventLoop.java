@@ -123,11 +123,12 @@ public final class NioEventLoop extends SingleThreadEventLoop {
 
     NioEventLoop(NioEventLoopGroup parent, Executor executor, SelectorProvider selectorProvider,
                  SelectStrategy strategy, RejectedExecutionHandler rejectedExecutionHandler) {
-        //NioEventLoopGroup.this
-        //executor=new ThreadPerTaskExecutor(newDefaultThreadFactory());
-        //SelectorProvider     ServerSocketChannel就是通过ServerSocketChannel.open()==》SelectorProvider.provider().openServerSocketChannel()创建的
-        //strategy=DefaultSelectStrategyFactory.INSTANCE===》new DefaultSelectStrategyFactory()
-        //rejectedExecutionHandler=RejectedExecutionHandlers.reject() ===》 new RejectedExecutionHandler()
+
+        /**
+         *  parent -> NioEventLoopGroup
+         * executor -> ThreadPerTaskExecutor
+         * DEFAULT_MAX_PENDING_TASKS 默认是 2147483647
+         */
         super(parent, executor, false, DEFAULT_MAX_PENDING_TASKS, rejectedExecutionHandler);
         if (selectorProvider == null) {
             throw new NullPointerException("selectorProvider");
@@ -138,19 +139,19 @@ public final class NioEventLoop extends SingleThreadEventLoop {
         //provider=SelectorProvider.provider()
         provider = selectorProvider;
         final SelectorTuple selectorTuple = openSelector();
+        //子类包装的selector  底层数据结构也是被替换了的
+        selector = selectorTuple.selector;
         //替换了数据结构selectedKeys   publicSelectedKeys的原生selector
         // 之前selectedkeys是set  改成了数组
-        selector = selectorTuple.selector;
-        //子类包装的selector  底层数据结构也是被替换了的
         unwrappedSelector = selectorTuple.unwrappedSelector;
         //selectStrategy=new DefaultSelectStrategyFactory()
         selectStrategy = strategy;
     }
 
     private static final class SelectorTuple {
-        //子类包装的selector
-        final Selector unwrappedSelector;
         //替换了数据结构selectedKeys   publicSelectedKeys的selector
+        final Selector unwrappedSelector;
+        //子类包装的selector
         final Selector selector;
 
         SelectorTuple(Selector unwrappedSelector) {
@@ -208,7 +209,8 @@ public final class NioEventLoop extends SingleThreadEventLoop {
         }
 
         final Class<?> selectorImplClass = (Class<?>) maybeSelectorImplClass;
-        //netty自定义的Set
+        //netty自定义的Set   HashSet<E>   extends AbstractSet
+       //                   SelectedSelectionKeySet extends AbstractSet
         final SelectedSelectionKeySet selectedKeySet = new SelectedSelectionKeySet();
 
         Object maybeException = AccessController.doPrivileged(new PrivilegedAction<Object>() {

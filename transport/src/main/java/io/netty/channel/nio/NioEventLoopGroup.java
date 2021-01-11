@@ -61,8 +61,11 @@ public class NioEventLoopGroup extends MultithreadEventLoopGroup {
 
 
     public NioEventLoopGroup(int nThreads, Executor executor) {
-        //executor默认为null
-        //ServerSocketChannel    就是通过ServerSocketChannel.open()==》SelectorProvider.provider().openServerSocketChannel()创建的
+        /**
+         * executor默认为null
+         * ServerSocketChannel  -> SelectorProvider.provider().openServerSocketChannel()
+         * Selector             -> SelectorProvider.provider().openSelector()
+         */
         this(nThreads, executor, SelectorProvider.provider());
     }
 
@@ -85,23 +88,18 @@ public class NioEventLoopGroup extends MultithreadEventLoopGroup {
 
     public NioEventLoopGroup(
             int nThreads, Executor executor, final SelectorProvider selectorProvider) {
-        //nThreads默认为零
-        //executor默认为null
-        //ServerSocketChannel    就是通过ServerSocketChannel.open()==》SelectorProvider.provider().openServerSocketChannel()创建的
-        //DefaultSelectStrategyFactory.INSTANCE===》new DefaultSelectStrategyFactory()   默认选择策略工厂
+        /**
+         * nThreads默认为零
+         * executor默认为null
+         * ServerSocketChannel  -> SelectorProvider.provider().openServerSocketChannel()
+         * DefaultSelectStrategyFactory.INSTANCE -> new DefaultSelectStrategyFactory()   默认选择策略工厂
+         */
         this(nThreads, executor, selectorProvider, DefaultSelectStrategyFactory.INSTANCE);
     }
 
     public NioEventLoopGroup(int nThreads, Executor executor, final SelectorProvider selectorProvider,
                              final SelectStrategyFactory selectStrategyFactory) {
-        //nThreads默认为零
-        //executor默认为null
-        //ServerSocketChannel    就是通过ServerSocketChannel.open()==》SelectorProvider.provider().openServerSocketChannel()创建的
-        //DefaultSelectStrategyFactory.INSTANCE===》new DefaultSelectStrategyFactory()
 
-        //线程池的拒绝策略，是指当任务添加到线程池中被拒绝，而采取的处理措施。
-        // 当任务添加到线程池中之所以被拒绝，可能是由于：第一，线程池异常关闭。第二，任务数量超过线程池的最大限制。
-        //RejectedExecutionHandlers.reject() ===》 new RejectedExecutionHandler()  ===>丢弃任务并抛出RejectedExecutionException异常。
         super(nThreads, executor, selectorProvider, selectStrategyFactory, RejectedExecutionHandlers.reject());
     }
 
@@ -141,12 +139,8 @@ public class NioEventLoopGroup extends MultithreadEventLoopGroup {
 
     @Override
     protected EventLoop newChild(Executor executor, Object... args) throws Exception {
-        //executor=new ThreadPerTaskExecutor(newDefaultThreadFactory());
 
-        //args参数如下
-        //SelectorProvider     ServerSocketChannel就是通过ServerSocketChannel.open()==》SelectorProvider.provider().openServerSocketChannel()创建的
-        //DefaultSelectStrategyFactory.INSTANCE===》new DefaultSelectStrategyFactory()
-        //RejectedExecutionHandlers.reject() ===》 new RejectedExecutionHandler()
+        //executor = ThreadPerTaskExecutor  创建线程，并且start
         return new NioEventLoop(this, executor, (SelectorProvider) args[0],
             ((SelectStrategyFactory) args[1]).newSelectStrategy(), (RejectedExecutionHandler) args[2]);
     }
