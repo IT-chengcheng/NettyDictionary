@@ -65,6 +65,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     final AbstractChannelHandlerContext head;
     final AbstractChannelHandlerContext tail;
 
+    // channel -> NioServerSocketChannel
     private final Channel channel;
     private final ChannelFuture succeededFuture;
     private final VoidChannelPromise voidPromise;
@@ -93,13 +94,14 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     private boolean registered;
 
     protected DefaultChannelPipeline(Channel channel) {
+        // channel -> NioServerSocketChannel
         this.channel = ObjectUtil.checkNotNull(channel, "channel");
         succeededFuture = new SucceededChannelFuture(channel, null);
         voidPromise =  new VoidChannelPromise(channel, true);
 
-        //创建尾结点
+        //创建尾结点 ,入栈处理器 extends AbstractChannelHandlerContext
         tail = new TailContext(this);
-        //创建头节点   头节点中维护了AbstractChannel中unsafe对象
+        //创建头节点，即是入栈，又是出栈处理器 ，extends AbstractChannelHandlerContext
         head = new HeadContext(this);
 
         head.next = tail;
@@ -1324,10 +1326,12 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     final class HeadContext extends AbstractChannelHandlerContext
             implements ChannelOutboundHandler, ChannelInboundHandler {
 
-        private final Unsafe unsafe;
+        private final Unsafe unsafe; // AbstractNioMessageChannel.NioMessageUnsafe
 
         HeadContext(DefaultChannelPipeline pipeline) {
             super(pipeline, null, HEAD_NAME, HeadContext.class);
+            // pipeline.channel() -> NioServerSocketChannel
+            // unsafe -> AbstractNioMessageChannel.NioMessageUnsafe
             unsafe = pipeline.channel().unsafe();
             setAddComplete();
         }

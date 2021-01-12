@@ -101,7 +101,7 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
         //pipeline=DefaultChannelPipeline
         //executor=null
         //name =没传系统默认创建
-        //handler=TailContext.class
+        //handler=TailContext.class 或者 HeadContext.class
         this.name = ObjectUtil.checkNotNull(name, "name");
         this.pipeline = pipeline;
         this.executor = executor;

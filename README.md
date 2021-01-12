@@ -3,7 +3,7 @@
 ## 涉及内容
 + 1、JAVA - BIO
 + 2、JAVA - NIO原理，以及JAVA-IO模型，reactor模型，select(),poll(),epoll()模型
-+ 3、
++ 3、netty启动流程分析，以及netty自定义的各种类，比如selector
 ## 使用方式
 + 1、尽量精通 Linux select(),poll(),epoll()模型，**必须精通** JAVA-NIO 网络编程
 + 2、深入理解《Scalable IO in Java》一书

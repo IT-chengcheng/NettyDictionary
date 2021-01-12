@@ -16,6 +16,7 @@
 package io.netty.channel;
 
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.nio.NioEventLoop;
 import io.netty.channel.socket.ChannelOutputShutdownEvent;
 import io.netty.channel.socket.ChannelOutputShutdownException;
 import io.netty.util.DefaultAttributeMap;
@@ -46,6 +47,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
     private final Channel parent;
     private final ChannelId id;
     private final Unsafe unsafe;
+    // pipeline 与 NioServersocketchannel互相持有
     private final DefaultChannelPipeline pipeline;
     private final VoidChannelPromise unsafeVoidPromise = new VoidChannelPromise(this, false);
     private final CloseFuture closeFuture = new CloseFuture(this);
@@ -71,6 +73,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
         //new ServerSocketChannel
         this.parent = parent;
         id = newId();
+        // 进入子类 AbstractNioMessageChannel  -> newUnsafe() -> unsafe = NioMessageUnsafe
         unsafe = newUnsafe();
         pipeline = newChannelPipeline();
     }
@@ -452,6 +455,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
 
         @Override
         public final void register(EventLoop eventLoop, final ChannelPromise promise) {
+
             if (eventLoop == null) {
                 throw new NullPointerException("eventLoop");
             }
@@ -466,8 +470,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
             }
 
             //promise=DefaultChannelPromise
-            //eventLoop=SingleThreadEventLoop
-
+            //eventLoop=NioEventLoop extends SingleThreadEventLoop
             //this.eventLoop=NioEventLoop==>SingleThreadEventLoop.this
             AbstractChannel.this.eventLoop = eventLoop;
 
@@ -563,6 +566,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
 
             boolean wasActive = isActive();
             try {
+                // 调用的是 NioServerSocketChannel绑定方法
                 doBind(localAddress);
             } catch (Throwable t) {
                 safeSetFailure(promise, t);

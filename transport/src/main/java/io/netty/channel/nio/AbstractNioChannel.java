@@ -79,12 +79,14 @@ public abstract class AbstractNioChannel extends AbstractChannel {
      * @param readInterestOp    the ops to set to receive data from the {@link SelectableChannel}
      */
     protected AbstractNioChannel(Channel parent, SelectableChannel ch, int readInterestOp) {
-        //parent -->  null
-        //ch--> serverSocketChannel  服务器channel
-        //readInterestOp--->SelectionKey.OP_ACCEPT
-
-        //创建id，unsafe pipeline
+        /**
+         *  parent -->  null
+         *  h     --> serverSocketChannel  服务端channel
+         *  readInterestOp  ->SelectionKey.OP_ACCEPT
+         */
+        //调用父类  -> 创建id，unsafe pipeline
         super(parent);
+
         this.ch = ch;
         this.readInterestOp = readInterestOp;
         try {

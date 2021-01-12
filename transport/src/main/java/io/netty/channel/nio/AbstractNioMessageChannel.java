@@ -39,9 +39,11 @@ public abstract class AbstractNioMessageChannel extends AbstractNioChannel {
      * @see AbstractNioChannel#AbstractNioChannel(Channel, SelectableChannel, int)
      */
     protected AbstractNioMessageChannel(Channel parent, SelectableChannel ch, int readInterestOp) {
-        //parent -->  null
-        //ch--> serverSocketChannel  服务端channel
-        //readInterestOp--->SelectionKey.OP_ACCEPT
+        /**
+         *  parent -->  null
+         *  h     --> serverSocketChannel  服务端channel
+         *  readInterestOp  ->SelectionKey.OP_ACCEPT
+         */
         super(parent, ch, readInterestOp);
     }
 
@@ -57,7 +59,7 @@ public abstract class AbstractNioMessageChannel extends AbstractNioChannel {
         }
         super.doBeginRead();
     }
-
+   // NioServerSocketChannel 的属性Unsafe unsafe 的值 就是这个类
     private final class NioMessageUnsafe extends AbstractNioUnsafe {
 
         private final List<Object> readBuf = new ArrayList<Object>();

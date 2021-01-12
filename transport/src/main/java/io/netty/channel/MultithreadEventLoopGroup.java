@@ -96,8 +96,10 @@ public abstract class MultithreadEventLoopGroup extends MultithreadEventExecutor
 
     @Override
     public ChannelFuture register(Channel channel) {
-        //channel=NioServerSocketChannel
-        // next()=NioEventLoop
+        /**
+         * channel=NioServerSocketChannel
+         * next()=NioEventLoop
+         */
         return next().register(channel);
     }
 

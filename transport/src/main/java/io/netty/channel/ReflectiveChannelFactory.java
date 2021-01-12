@@ -23,10 +23,11 @@ import java.lang.reflect.Constructor;
 
 /**
  * ReflectiveChannelFactory  反射的channel工厂
- * 根据传进来的channel  反射创建channel
+ * 根据传进来的channel  反射创建channel,比如 ：NioServerSocketChannel.class.getConstructor()
  */
 public class ReflectiveChannelFactory<T extends Channel> implements ChannelFactory<T> {
 
+// 比如：NioServerSocketChannel.class.getConstructor()
     private final Constructor<? extends T> constructor;
 
     public ReflectiveChannelFactory(Class<? extends T> clazz) {

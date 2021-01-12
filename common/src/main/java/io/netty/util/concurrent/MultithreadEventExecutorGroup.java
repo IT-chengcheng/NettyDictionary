@@ -30,8 +30,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class MultithreadEventExecutorGroup extends AbstractEventExecutorGroup {
 
-    // 存放 NioEventLoop 实例
+    // 存放 nThreads 个 NioEventLoop 实例
     private final EventExecutor[] children;
+
     private final Set<EventExecutor> readonlyChildren;
     private final AtomicInteger terminatedChildren = new AtomicInteger();
     private final Promise<?> terminationFuture = new DefaultPromise(GlobalEventExecutor.INSTANCE);
@@ -94,7 +95,7 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
             //出现异常标识
             boolean success = false;
             try {
-                //创建nThreads个nioEventLoop保存到children数组中
+                //创建 NioEventLoop ,保存到children数组中
                 children[i] = newChild(executor, args);
                 success = true;
             } catch (Exception e) {
@@ -137,6 +138,12 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
         };
 
         for (EventExecutor e: children) {
+            /**
+             * terminationFuture() =  DefaultPromise
+             * DefaultPromise<V> extends AbstractFuture  implements Future
+             *                   implements Promise
+             *
+             */
             e.terminationFuture().addListener(terminationListener);
         }
 

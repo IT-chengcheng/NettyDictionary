@@ -53,10 +53,8 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
     private static ServerSocketChannel newSocket(SelectorProvider provider) {
         try {
             /**
-             *  使用{@link SelectorProvider}打开{@link SocketChannel}，从而删除条件in
-             *  否则，每个ServerSocketChannel.open()将调用{@link SelectorProvider#provider()}。
-             *
-             *  See <a href="https://github.com/netty/netty/issues/2308">#2308</a>.
+             *  使用SelectorProvider  SocketChannel ，从而删除条件in
+             *  否则，每个ServerSocketChannel.open()将调用 SelectorProvider#provider()。
              */
             return provider.openServerSocketChannel();
         } catch (IOException e) {
@@ -72,7 +70,9 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
      * 反射创建NioServerSocketChannel调用
      */
     public NioServerSocketChannel() {
-        //newSocket(DEFAULT_SELECTOR_PROVIDER)返回 ServerSocketChannel
+        /**
+         * newSocket(DEFAULT_SELECTOR_PROVIDER)返回  -> ServerSocketChannel
+         */
         this(newSocket(DEFAULT_SELECTOR_PROVIDER));
     }
 
@@ -132,6 +132,9 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
     //调用nio  api绑定ip端口
     @Override
     protected void doBind(SocketAddress localAddress) throws Exception {
+        /**
+         * 最终绑定服务端 端口的地方
+         */
         if (PlatformDependent.javaVersion() >= 7) {
             javaChannel().bind(localAddress, config.getBacklog());
         } else {
@@ -201,7 +204,7 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
     private final class NioServerSocketChannelConfig extends DefaultServerSocketChannelConfig {
         private NioServerSocketChannelConfig(NioServerSocketChannel channel, ServerSocket javaSocket) {
             // channel  --> NioServerSocketChannel
-            //javaSocket==>  serverSocketChannel.socket()  服务端channel  nio  api
+            //javaSocket ->   serverSocket   java-nio原生属性
             super(channel, javaSocket);
         }
 

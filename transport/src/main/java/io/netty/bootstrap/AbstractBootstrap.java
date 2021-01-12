@@ -17,6 +17,7 @@
 package io.netty.bootstrap;
 
 import io.netty.channel.*;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.GlobalEventExecutor;
@@ -42,16 +43,20 @@ import java.util.Map;
 public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C extends Channel> implements Cloneable {
 
     /**
-     * volatile    保持内存可见性   防止指令重排
+     * volatile 关键字作用：  保持内存可见性   防止指令重排
+     * bossGroup  处理的用户连接的  group=new NioEventLoopGroup();
      */
-    //bossGroup
     volatile EventLoopGroup group;
     @SuppressWarnings("deprecation")
-    //ReflectiveChannelFactory
+    /**
+     * ReflectiveChannelFactory
+     * 通过反射创建channel，比如 NioServerSocketChannel
+     */
     private volatile ChannelFactory<? extends C> channelFactory;
     private volatile SocketAddress localAddress;
     private final Map<ChannelOption<?>, Object> options = new LinkedHashMap<ChannelOption<?>, Object>();
     private final Map<AttributeKey<?>, Object> attrs = new LinkedHashMap<AttributeKey<?>, Object>();
+    // 处理的用户连接的 handler
     private volatile ChannelHandler handler;
 
     AbstractBootstrap() {
@@ -80,7 +85,9 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
         if (this.group != null) {
             throw new IllegalStateException("group set already");
         }
-        // 处理的用户连接的  group=new NioEventLoopGroup();
+        /**
+         * 处理的用户连接的  group=new NioEventLoopGroup();
+         */
         this.group = group;
         return self();
     }
@@ -201,6 +208,7 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
      * call the super method in that case.
      */
     public B validate() {
+        // 看上面因为注释，一定要注意子类实现！！！！！
         if (group == null) {
             throw new IllegalStateException("group not set");
         }
@@ -264,21 +272,23 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
      * Create a new {@link Channel} and bind it.
      */
     public ChannelFuture bind(SocketAddress localAddress) {
-        //判断 group channelFactory 对象不为空    serverBootstrap.group    serverBootstrap.channel  已经设置
+
+        //各种判空操作
         validate();
-        //ObjectUtil.checkNotNull(localAddress, "localAddress") 还是返回的localAddress对象  判断不为空
+
         return doBind(ObjectUtil.checkNotNull(localAddress, "localAddress"));
     }
 
     private ChannelFuture doBind(final SocketAddress localAddress) {
-        //初始化和注册
+        //初始化和注册  regFuture  ->   DefaultChannelPromise
         final ChannelFuture regFuture = initAndRegister();
+        // channel -> NioServerSocketChannel
         final Channel channel = regFuture.channel();
         if (regFuture.cause() != null) {
             return regFuture;
         }
 
-        if (regFuture.isDone()) {
+        if (regFuture.isDone()) {// 会进入这个判断，看下面英文注释
             // At this point we know that the registration was complete and successful.
             ChannelPromise promise = channel.newPromise();
             doBind0(regFuture, channel, localAddress, promise);
@@ -311,11 +321,15 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
     final ChannelFuture initAndRegister() {
         Channel channel = null;
         try {
-            //通过反射创建NioServerSocketChannel
-            //channelFactory=new ReflectiveChannelFactory  ---> constructor=NioServerSocketChannel.class.getConstructor();
-            //channel=NioServerSocketChannel
+            /**
+             * 通过反射创建NioServerSocketChannel
+             * channelFactory ->  ReflectiveChannelFactory
+             * 一定要注意：通过反射创建了NioServerSocketChannel，那么一定会执行它的构造方法，所以找到该类的构造方法
+             */
             channel = channelFactory.newChannel();
+            // channel  ->  NioServerSocketChannel
             init(channel);
+
         } catch (Throwable t) {
             if (channel != null) {
                 // channel can be null if newChannel crashed (eg SocketException("too many open files"))
@@ -326,10 +340,14 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
             // as the Channel is not registered yet we need to force the usage of the GlobalEventExecutor
             return new DefaultChannelPromise(new FailedChannel(), GlobalEventExecutor.INSTANCE).setFailure(t);
         }
-        //config().group()==bossGroup  ===》 EventLoopGroup bossGroup=new NioEventLoopGroup(1);
-        //register开启了事件轮询线程
-        //config().group()  boosGroup
+
+        /**
+         * config().group() -> bossGroup  -> NioEventLoopGroup ;
+         * register开启了事件轮询线程
+         * 返回对象 regFuture -> DefaultChannelPromise
+         */
         ChannelFuture regFuture = config().group().register(channel);
+
         if (regFuture.cause() != null) {
             if (channel.isRegistered()) {
                 channel.close();
@@ -352,7 +370,6 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
         channel.eventLoop().execute(new Runnable() {
             @Override
             public void run() {
-                System.out.println(" channel.eventLoop().execute(new Runnable() ");
                 if (regFuture.isSuccess()) {
                     channel.bind(localAddress, promise).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
                 } else {

@@ -47,7 +47,7 @@ public class DefaultServerSocketChannelConfig extends DefaultChannelConfig
      */
     public DefaultServerSocketChannelConfig(ServerSocketChannel channel, ServerSocket javaSocket) {
         // channel  --> NioServerSocketChannel
-        //javaSocket==>  serverSocketChannel.socket()  服务端channel  nio  api
+        //javaSocket==>  serverSocket  java-nio原生属性
         super(channel);
         if (javaSocket == null) {
             throw new NullPointerException("javaSocket");
