@@ -99,10 +99,11 @@ public final class NioEventLoop extends SingleThreadEventLoop {
 
     /**
      * The NIO {@link Selector}.
+     *
      */
-    private Selector selector;
-    private Selector unwrappedSelector;
-    //new SelectedSelectionKeySet()
+    private Selector selector; //自定义的selector -> SelectedSelectionKeySetSelector,看一下这个类！！
+    private Selector unwrappedSelector;//替换了数据结构selectedKeys   Set<SelectionKey> selectedKeys ->  netty自定义的SelectedSelectionKeySet
+    //自定义的事件集合 ->  SelectedSelectionKeySet()
     private SelectedSelectionKeySet selectedKeys;
 
     private final SelectorProvider provider;
@@ -126,7 +127,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
 
         /**
          *  parent -> NioEventLoopGroup
-         * executor -> ThreadPerTaskExecutor
+         *  executor = ThreadPerTaskExecutor  创建线程，并且start
          * DEFAULT_MAX_PENDING_TASKS 默认是 2147483647
          */
         super(parent, executor, false, DEFAULT_MAX_PENDING_TASKS, rejectedExecutionHandler);
@@ -138,20 +139,27 @@ public final class NioEventLoop extends SingleThreadEventLoop {
         }
         //provider=SelectorProvider.provider()
         provider = selectorProvider;
+        // netty开始自定义selector
         final SelectorTuple selectorTuple = openSelector();
-        //子类包装的selector  底层数据结构也是被替换了的
+        //自定义的selector -> SelectedSelectionKeySetSelector,看一下这个类！！
         selector = selectorTuple.selector;
-        //替换了数据结构selectedKeys   publicSelectedKeys的原生selector
-        // 之前selectedkeys是set  改成了数组
+        //替换了数据结构selectedKeys   Set<SelectionKey> selectedKeys ->  netty自定义的SelectedSelectionKeySet
         unwrappedSelector = selectorTuple.unwrappedSelector;
         //selectStrategy=new DefaultSelectStrategyFactory()
         selectStrategy = strategy;
     }
 
     private static final class SelectorTuple {
-        //替换了数据结构selectedKeys   publicSelectedKeys的selector
+        //替换了数据结构 Selector  Set<SelectionKey> selectedKeys ->  netty自定义的SelectedSelectionKeySet
         final Selector unwrappedSelector;
-        //子类包装的selector
+        /**
+         *  SelectedSelectionKeySetSelector  extends Selector
+         *  是netty自定的selector，这是将来真正使用的selector，里面有两个重要属性
+         *   1、unwrappedSelector
+         *   2、自定义集合 SelectedSelectionKeySet extends AbstractSet<SelectionKey>
+         *        自定义集合里有重要属性  SelectionKey[] keys ，存放发生事件的selectionkey
+         *        并且它还重写迭代器方法，用来迭代发生事件的 SelectionKey[] keys
+         */
         final Selector selector;
 
         SelectorTuple(Selector unwrappedSelector) {
@@ -166,18 +174,23 @@ public final class NioEventLoop extends SingleThreadEventLoop {
     }
 
 
-    //创建selector 并且将selector中的selectedKeys   publicSelectedKeys  从set集合用数组替代
+    /**
+     * 一、创建selector 并且将selector中的selectedKeys   publicSelectedKeys  从set集合用数组替代
+     * 二、每个Selector中还维护了publicKeys和publicSelectedKeys两个视图，供客户端使用。
+     *   1、publicKeys 是keys的视图，调用Selector的keys()方法返回的就是publicKeys，publicKeys不支持添加和删除操作；
+     *   2、publicSelectedKeys 是selectedKeys的视图，它是是个不可增长的集合，即不支持add操作，但支持remove操作，
+     *        调用publicSelectedKeys集合的remove操作实际是从selectedKeys中删除一个SelectionKey对象。
+     *        我们可以调用Selector的selectedKeys()方法访问publicSelectedKeys。
+     */
     private SelectorTuple openSelector() {
         final Selector unwrappedSelector;
         try {
-            //调用nio  api创建selector
             unwrappedSelector = provider.openSelector();
         } catch (IOException e) {
             throw new ChannelException("failed to open a new selector", e);
         }
-//        System.out.println(unwrappedSelector.getClass());
         if (DISABLE_KEY_SET_OPTIMIZATION) {
-            //将selector保存到SelectorTuple
+
             return new SelectorTuple(unwrappedSelector);
         }
 
@@ -209,8 +222,13 @@ public final class NioEventLoop extends SingleThreadEventLoop {
         }
 
         final Class<?> selectorImplClass = (Class<?>) maybeSelectorImplClass;
-        //netty自定义的Set   HashSet<E>   extends AbstractSet
-       //                   SelectedSelectionKeySet extends AbstractSet
+        /**
+         * netty自定义的Set   HashSet<E>           extends  AbstractSet
+         *                 SelectedSelectionKeySet extends  AbstractSet
+         * 自定义的类 SelectedSelectionKeySet ：
+         *     有个重要属性：SelectionKey[] keys，也就说将selectionkey放到了数组里了，而不是set里
+         *     重写了 迭代器方法：  public Iterator<SelectionKey> iterator() {}， 迭代数组，而不是set
+         */
         final SelectedSelectionKeySet selectedKeySet = new SelectedSelectionKeySet();
 
         Object maybeException = AccessController.doPrivileged(new PrivilegedAction<Object>() {
@@ -218,6 +236,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
             public Object run() {
                 try {
                     Field selectedKeysField = selectorImplClass.getDeclaredField("selectedKeys");
+                    // publicSelectedKeys 见方法头部的解释
                     Field publicSelectedKeysField = selectorImplClass.getDeclaredField("publicSelectedKeys");
 
                     if (PlatformDependent.javaVersion() >= 9 && PlatformDependent.hasUnsafe()) {
@@ -266,6 +285,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
         }
         selectedKeys = selectedKeySet;
         logger.trace("instrumented a special java.util.Set into: {}", unwrappedSelector);
+        // 见构造方法解释
         return new SelectorTuple(unwrappedSelector,
                                  new SelectedSelectionKeySetSelector(unwrappedSelector, selectedKeySet));
     }

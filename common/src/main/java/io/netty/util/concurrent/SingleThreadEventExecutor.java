@@ -144,7 +144,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
                                         RejectedExecutionHandler rejectedHandler) {
         /**
          *  parent -> NioEventLoopGroup
-         * executor -> ThreadPerTaskExecutor
+         * executor = ThreadPerTaskExecutor  创建线程，并且start
          * DEFAULT_MAX_PENDING_TASKS 默认是 2147483647
          */
         super(parent);

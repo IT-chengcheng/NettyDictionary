@@ -21,9 +21,20 @@ import java.nio.channels.Selector;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Set;
 
+/**
+ * 这个类是 netty真正用到 selector类，是netty自定的一个selector
+ */
 final class SelectedSelectionKeySetSelector extends Selector {
+    /**
+     * 自定义集合 SelectedSelectionKeySet extends AbstractSet<SelectionKey>
+     *        自定义集合里有重要属性  SelectionKey[] keys ，存放发生事件的selectionkey
+     *        并且它还重写迭代器方法，用来迭代发生事件的 SelectionKey[] keys
+     */
     private final SelectedSelectionKeySet selectionKeys;
-    //类中selectedKeys替换过数据类型的Selector
+    /**
+     * unwrappedSelector 类中selectedKeys替换过数据类型的Selector，
+     * Set<SelectionKey> selectedKeys  ->  netty自定义的SelectedSelectionKeySet
+     */
     private final Selector delegate;
 
     SelectedSelectionKeySetSelector(Selector delegate, SelectedSelectionKeySet selectionKeys) {

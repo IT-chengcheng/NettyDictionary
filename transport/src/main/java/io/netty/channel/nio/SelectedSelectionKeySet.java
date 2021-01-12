@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 final class SelectedSelectionKeySet extends AbstractSet<SelectionKey> {
-
+   //发生事件的selectionkey容器，java-nio原生是个Set
     SelectionKey[] keys;
     int size;
 
@@ -60,7 +60,7 @@ final class SelectedSelectionKeySet extends AbstractSet<SelectionKey> {
     }
 
     @Override
-    public Iterator<SelectionKey> iterator() {
+    public Iterator<SelectionKey> iterator() {//重写了迭代器方法，java-nio原生迭代set，本类迭代数组
         return new Iterator<SelectionKey>() {
             private int idx;
 
