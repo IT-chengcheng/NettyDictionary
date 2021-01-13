@@ -62,7 +62,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
             AtomicReferenceFieldUpdater.newUpdater(
                     SingleThreadEventExecutor.class, ThreadProperties.class, "threadProperties");
 
-    //new LinkedBlockingQueue<Runnable>(2147483647);
+    //new LinkedBlockingQueue<Runnable>(2147483647);最大开启的线程数
     private final Queue<Runnable> taskQueue;
 
     private volatile Thread thread;
@@ -327,7 +327,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
         if (task == null) {
             throw new NullPointerException("task");
         }
-        //加入线程队列是个成功？
+        //加入线程队列是否成功？
         if (!offerTask(task)) {
             //不成功直接抛出异常
             reject(task);
@@ -763,16 +763,21 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
 
     @Override
     public void execute(Runnable task) {
-        System.out.println("ccccccccccc");
+        /**
+         * netty 的 NioEventLoop 真正创建线程,并且开启线程的方法入口！！！
+         */
+        System.out.println("netty 的 NioEventLoop 真正创建线程,并且开启线程的方法入口！！！");
         if (task == null) {
             throw new NullPointerException("task");
         }
 
-        //调用doStartThread方法启动事件轮询后此方法返回true
+        /**
+         * 判断 当前线程是不是正在运行的线程
+         */
         boolean inEventLoop = inEventLoop();
-        //将任务加入线程队列
+        //将任务加入线程队列，队列中保存正在运行的线程任务
         addTask(task);
-        //判断当前执行此任务的线程是否是SingleThreadEventExecutor
+        // 正在运行的线程，不是当前线程，那就开启一个新线程
         if (!inEventLoop) {
             startThread();
             if (isShutdown()) {
@@ -920,7 +925,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                //将此线程保存起来
+                //将当前线程 保存起来，后续有用
                 thread = Thread.currentThread();
                 if (interrupted) {
                     thread.interrupt();

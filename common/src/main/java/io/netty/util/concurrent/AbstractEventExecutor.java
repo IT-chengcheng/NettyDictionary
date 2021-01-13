@@ -60,6 +60,8 @@ public abstract class AbstractEventExecutor extends AbstractExecutorService impl
 
     @Override
     public boolean inEventLoop() {
+        // 进入子类  SingleThreadEventExecutor -> inEventLoop()
+        // 就是判断 当前线程是不是正在运行的线程
         return inEventLoop(Thread.currentThread());
     }
 
