@@ -17,6 +17,7 @@ package io.netty.util.internal;
 
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.FastThreadLocal;
+import io.netty.util.concurrent.ThreadPerTaskExecutor;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadFactory;
@@ -51,36 +52,46 @@ public final class ThreadExecutorMap {
     public static Executor apply(final Executor executor, final EventExecutor eventExecutor) {
         ObjectUtil.checkNotNull(executor, "executor");
         ObjectUtil.checkNotNull(eventExecutor, "eventExecutor");
-        //executor=  ThreadPerTaskExecutor
-        //eventExecutor=SingleThreadEventExecutor.this
+
         return new Executor() {
             @Override
             public void execute(final Runnable command) {
-                //apply(command, eventExecutor) 任意返回Runnable对象  真正执行时执行的是command.run方法
+                /**
+                 * netty 的 NioEventLoop 真正创建线程，并且开启线程的方法2
+                 * executor ->   ThreadPerTaskExecutor 创建一个线程，并且开启线程
+                 * eventExecutor ->  NioEventLoop extends SingleThreadEventExecutor
+                 */
                 executor.execute(apply(command, eventExecutor));
             }
         };
     }
 
-    /**
-     * 修饰给定的{@link Runnable}，并确保{@link #currentExecutor()}将返回{@code eventExecutor}
-     * 在执行期间从{@link Runnable}中调用。
-     */
+
     public static Runnable apply(final Runnable command, final EventExecutor eventExecutor) {
         ObjectUtil.checkNotNull(command, "command");
         ObjectUtil.checkNotNull(eventExecutor, "eventExecutor");
-        //command=线程任务对象
-        //eventExecutor=SingleThreadEventExecutor
+        //command= 真正执行具体任务的 线程任务对象
+        //eventExecutor=NioEventLoop extends SingleThreadEventExecutor
         return new Runnable() {
             @Override
             public void run() {
-                //类似 private ThreadLocal<String> threadLocal=new ThreadLocal<>();
-                //threadLocal.set(eventExecutor);
-                //执行任务之前  保存一个eventExecutor对象
+                /**
+                 * 类似 private ThreadLocal<String> threadLocal=new ThreadLocal<>();
+                 * threadLocal.set(eventExecutor);
+                 * 执行任务之前 保存一个eventExecutor -> NioEventLoop extends SingleThreadEventExecutor
+                 */
                 setCurrentEventExecutor(eventExecutor);
                 try {
+                    /**
+                     * 能够进入外面的 run()方法，说明真正开启了线程
+                     * 但是真正执行线程任务的还是外面传进来的 command.run()，但是这样调用，仅仅是一个方法调用，并没有再次开启线程
+                     * 这样相当于一个回调，回调到外面传进来的方法块
+                     */
                     command.run();
                 } finally {
+                    /**
+                     * 执行完，清空当前变量
+                     */
                     setCurrentEventExecutor(null);
                 }
             }

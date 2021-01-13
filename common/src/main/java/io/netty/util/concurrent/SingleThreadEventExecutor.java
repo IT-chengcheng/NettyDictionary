@@ -68,6 +68,9 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
     private volatile Thread thread;
     @SuppressWarnings("unused")
     private volatile ThreadProperties threadProperties;
+    /**
+     * netty 的 NioEventLoop 真正创建线程，并且开启线程的执行器，在构造方法中赋值
+     */
     private final Executor executor;
     private volatile boolean interrupted;
 
@@ -152,7 +155,11 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
         this.addTaskWakesUp = addTaskWakesUp;
         //2147483647
         this.maxPendingTasks = Math.max(16, maxPendingTasks);
-        //executor=执行器
+        /**
+         * netty 的 NioEventLoop 真正创建线程，并且开启线程的方法1
+         * this -> NioEventLoop
+         * executor ->   ThreadPerTaskExecutor 创建一个线程，并且开启线程
+         */
         this.executor = ThreadExecutorMap.apply(executor, this);
         //new LinkedBlockingQueue<Runnable>(2147483647);
         taskQueue = newTaskQueue(this.maxPendingTasks);
