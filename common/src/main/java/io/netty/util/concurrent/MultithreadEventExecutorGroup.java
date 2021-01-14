@@ -123,9 +123,11 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
                 }
             }
         }
-
-        //children是 new NioEventLoop() 的对象数组
-        //chooser=GenericEventExecutorChooser/PowerOfTwoEventExecutorChooser
+        /**
+         * children是 new NioEventLoop() 的对象数组
+         * chooser=GenericEventExecutorChooser/PowerOfTwoEventExecutorChooser
+         * 这个类的作用就是  根据一定算法选择线程loop  -> NioEventLoop
+         */
         chooser = chooserFactory.newChooser(children);
 
         final FutureListener<Object> terminationListener = new FutureListener<Object>() {
@@ -159,8 +161,10 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
 
     @Override
     public EventExecutor next() {
-        //chooser=GenericEventExecutorChooser/PowerOfTwoEventExecutorChooser
-        //从executors对象数组中返回new NioEventLoop()对象
+        /**
+         * chooser=GenericEventExecutorChooser/PowerOfTwoEventExecutorChooser
+         * 从executors对象数组中 根据一定算法 返回new NioEventLoop()对象
+         */
         return chooser.next();
     }
 

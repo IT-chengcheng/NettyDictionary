@@ -78,7 +78,7 @@ public abstract class SingleThreadEventLoop extends SingleThreadEventExecutor im
 
     @Override
     public ChannelFuture register(Channel channel) {
-        //channel=NioServerSocketChannel
+        //channel  =   NioServerSocketChannel
         return register(new DefaultChannelPromise(channel, this));
     }
 

@@ -455,7 +455,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
 
         @Override
         public final void register(EventLoop eventLoop, final ChannelPromise promise) {
-
+            // promise  -> DefaultChannelPromise extends DefaultPromise
             if (eventLoop == null) {
                 throw new NullPointerException("eventLoop");
             }
@@ -490,7 +490,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                     eventLoop.execute(new Runnable() {
                         @Override
                         public void run() {
-                            System.out.println("register0");
+                            System.out.println("开始执行注册操作 ");
                             register0(promise);
                         }
                     });
@@ -508,7 +508,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
         private void register0(ChannelPromise promise) {
             try {
                 /**
-                 *  promise=DefaultChannelPromise
+                 *  promise= DefaultChannelPromise
                  * 检查通道是否仍然打开，因为它可以在寄存器的平均时间内关闭
                  * 调用在eventLoop之外
                  */
@@ -517,7 +517,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                 }
                 boolean firstRegistration = neverRegistered;
                 /**
-                 * 最终做了一件事 ：ServerSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+                 * 最终做了一件事 ：ServerSocketChannel.register(selector, SelectionKey.OP_ACCEPT); 但是感兴趣的事件是 0
                  * 进入 ->  AbstractNioChannel.doRegister() ,这是NioServerSocketChannel 的父类
                  */
                 doRegister();
@@ -526,8 +526,10 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
 
                 // 确保在实际通知承诺之前调用handlerAdded(…)。这是需要的
                 // 用户可能已经通过ChannelFutureListener中的管道触发事件。
-
-                //会执行handlerAdded方法  DefaultChannelPipeline
+                /**
+                 * 开始回调DefaultChannelPipeline线程链中的任务了，也就是执行pipeline中 一个个 handler 的 handlerAdded（)方法
+                 * 线程链中的任务 是在哪添加的？ 是在bootStrap的 init（）方法中的 pipeline.addlast(channel)
+                 */
                 pipeline.invokeHandlerAddedIfNeeded();
 
                // promise -> DefaultChannelPromise,触发listenner 方法

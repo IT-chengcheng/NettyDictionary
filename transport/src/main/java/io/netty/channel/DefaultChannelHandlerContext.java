@@ -19,7 +19,14 @@ import io.netty.util.concurrent.EventExecutor;
 
 final class DefaultChannelHandlerContext extends AbstractChannelHandlerContext {
 
-    //handler=new ChannelInitializer<Channel>
+    /**
+     * 各种不同类型的handler
+     *    1、 ChannelInitializer  特殊的handler，程序员以及netty都可以创建这种类型的，一般创建的事内部类
+     *                这个种handler的作用就是：添加真正的handler，添加完了在将自己从pipelie中移除
+     *    2、 程序员自称已的handler
+     *    3、netty自定义的handler
+     *
+     */
     private final ChannelHandler handler;
 
     DefaultChannelHandlerContext(
@@ -30,10 +37,11 @@ final class DefaultChannelHandlerContext extends AbstractChannelHandlerContext {
         //handler=new ChannelInitializer<Channel>
         super(pipeline, executor, name, handler.getClass());
         /**
-         * handler  -> 一般都是 ChannelInitializer ，这是个特殊的handler
-         *           一般ChannelInitializer都是一个匿名内部类，
-         *                有程序员创建的，
-         *                也有netty自己创建的（见 -> ServerBootStrap -> init(Channel channel)）
+         * handler -> 会有各种 handler，程序员自己加的(TestZhangHandler)，netty自己的,
+         *  还有一种最为特殊的handler  -> ChannelInitializer
+         * abstract  ChannelInitializer<Channel> 这是个特殊的handler,一般 netty 创建的 ChannelInitializer都是一个匿名内部类 ->
+         *                                                  （见 -> ServerBootStrap -> init(Channel channel)）
+         * 程序员创建的可以是个匿名内部类，也可以创建一个它的子类。
          */
         this.handler = handler;
     }

@@ -56,6 +56,7 @@ import static io.netty.channel.ChannelHandlerMask.mask;
 abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, ResourceLeakHint {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(AbstractChannelHandlerContext.class);
+    // 下面这两个属性，就是pipeline 形成链表的核心。
     volatile AbstractChannelHandlerContext next;
     volatile AbstractChannelHandlerContext prev;
 
@@ -970,9 +971,12 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
         if (setAddComplete()) {
             /**
              * 当前执行类是 DefaultChannelHandlerContext，所以会进入 DefaultChannelHandlerContext. handler()
-             * 取到的 DefaultChannelHandlerContext的 属性 handler，这个属性赋的什么值？ 赋的是匿名内部类 ServerBootstrap$2223
-             * 也就是 ServerBootstrap.ChannelInitializer，所以会进入 ChannelInitializer.handlerAdded()
-             * 给DefaultChannelHandlerContext的的handler的属性赋值的入口是 ServerBootStrap -> init(Channel channel)
+             * 取到的 DefaultChannelHandlerContext的 属性 handler，这个属性赋的什么值？ 有很多种
+             *  1、赋的是匿名内部类 ServerBootstrap$2223
+             *    也就是 ServerBootstrap.ChannelInitializer，所以会进入 ChannelInitializer.handlerAdded()
+             *    给DefaultChannelHandlerContext的的handler的属性赋值的入口是 ServerBootStrap -> init(Channel channel)
+             *    ChannelInitializer是一种特殊的handler
+             *  2、赋的 程序员，以及netty创建的 正常handler
              */
             handler().handlerAdded(this);
         }
@@ -982,6 +986,12 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
         try {
             // Only call handlerRemoved(...) if we called handlerAdded(...) before.
             if (handlerState == ADD_COMPLETE) {
+                /**
+                 * 当前执行类是 DefaultChannelHandlerContext，所以会进入 DefaultChannelHandlerContext. handler()
+                 * 取到的 DefaultChannelHandlerContext的 属性 handler，这个属性赋的什么值？ 赋的是匿名内部类 ServerBootstrap$2223
+                 * 也就是 ServerBootstrap.ChannelInitializer，所以会进入 ChannelInitializer.handlerRemoved()
+                 * 给DefaultChannelHandlerContext的的handler的属性赋值的入口是 ServerBootStrap -> init(Channel channel)
+                 */
                 handler().handlerRemoved(this);
             }
         } finally {

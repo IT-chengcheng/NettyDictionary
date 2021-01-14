@@ -332,9 +332,21 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
              * 通过反射创建NioServerSocketChannel
              * channelFactory ->  ReflectiveChannelFactory
              * 一定要注意：通过反射创建了NioServerSocketChannel，那么一定会执行它的构造方法，所以找到该类的构造方法
+             *  NioServerSocketChannel属性：
+             *                SelectableChannel   ch  =  java-nio 原生 ServerSocketChannel
+             *                Unsafe    unsafe   =    NioMessageUnsafe
+             *                DefaultChannelPipeline  pipeline  = new DefaultChannelPipeline ()
+             *                               AbstractChannelHandlerContext   tail = TailContext
+             *                                AbstractChannelHandlerContext  head  = HeadContext
+             *
              */
             channel = channelFactory.newChannel();
-            // channel  ->  NioServerSocketChannel
+            /**
+             * channel  ->  NioServerSocketChannel
+             * 主要做的工作就是 往pipeline里面添加handler
+             * 确切的说是 将这个操作放到 DefaultChannelPipeline 的回调线程链中 -> PendingHandlerCallback pendingHandlerCallbackHead
+             * 什么时候执行这个回调线程链呢？ 就是下面的 register（）方法的其中一步
+             */
             init(channel);
 
         } catch (Throwable t) {
@@ -349,12 +361,17 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
         }
 
         /**
-         * config().group() -> bossGroup  -> NioEventLoopGroup ;
-         * register开启了事件轮询线程
-         * 返回对象 regFuture -> DefaultChannelPromise
+         * 1、config().group() -> bossGroup  -> NioEventLoopGroup ;
+         * 2、register开启了事件轮询线程
+         * 3、返回对象 regFuture -> DefaultChannelPromise
+         *  DefaultChannelPromise extends DefaultPromise  implements ChannelPromise
+         *                  interface ChannelPromise extends ChannelFuture extends Future
+         *          所以 DefaultChannelPromise 也是个 ChannelFuture
+         *          有属性 Channel channel = NioServerSocketChannel
+         * 4、入参 channel -> NioServerSocketChannel
          */
-        ChannelFuture regFuture = config().group().register(channel);
 
+        ChannelFuture regFuture = config().group().register(channel);
         if (regFuture.cause() != null) {
             if (channel.isRegistered()) {
                 channel.close();

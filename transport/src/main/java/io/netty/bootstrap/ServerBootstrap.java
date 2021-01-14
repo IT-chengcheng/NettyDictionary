@@ -53,8 +53,8 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
     private volatile EventLoopGroup childGroup;
     /**
      * 处理读写事件的handler
-     * 但是一般都是 ChannelInitializer ，这是个特殊的handler，一般都是重写它的方法 initChannel(),在方法内部拿到pipline
-     * 然后再继续添加多个真正的handler
+     * 但是一般都是 ChannelInitializer ，这是个特殊的handler，一般都是重写它的方法 initChannel(),在方法内部拿到pipeline
+     * 然后再继续添加多个真正的handler，添加完成后，将ChannelInitializer从pipeline中移除
      */
     private volatile ChannelHandler childHandler;
 
@@ -165,7 +165,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
         ChannelPipeline p = channel.pipeline();
 
         final EventLoopGroup currentChildGroup = childGroup;
-        // 一般都是 ChannelInitializer ，这是个特殊的handler
+        // 一般都是 ChannelInitializer ，这是个特殊的handler，见属性解释
         final ChannelHandler currentChildHandler = childHandler;
         final Entry<ChannelOption<?>, Object>[] currentChildOptions;
         final Entry<AttributeKey<?>, Object>[] currentChildAttrs;

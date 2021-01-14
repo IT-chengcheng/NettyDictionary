@@ -99,6 +99,7 @@ public abstract class MultithreadEventLoopGroup extends MultithreadEventExecutor
         /**
          * channel=NioServerSocketChannel
          * next()=NioEventLoop
+         * next()是 根据一定算法从 线程组中选一个 NioEventLoop
          */
         return next().register(channel);
     }

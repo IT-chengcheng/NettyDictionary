@@ -142,12 +142,17 @@ public abstract class ChannelInitializer<C extends Channel> extends ChannelInbou
                 exceptionCaught(ctx, cause);
             } finally {
                 /**  删除handler,删除的是 特殊的handler -> ChannelInitializer，因为他的作用已经发挥完了，
-                 *      就是通过他的initChannel(ctx.channel()) 方法，添加真正的handler
+                 *          就是通过他的initChannel(ctx.channel()) 方法，添加真正的handler
                  * ctx -> DefaultChannelHandelrContext extends AbstracctChannelHandlerContext
                  * ctx.pipeline() - > DefaultChannelPipline
                  */
                 ChannelPipeline pipeline = ctx.pipeline();
+                /**
+                 * 根据 handler ，找出 该handler 上下文
+                 * pipeline 这条链 里面存放的实际是 一个个 handlerContext（handler）
+                 */
                 if (pipeline.context(this) != null) {
+
                     pipeline.remove(this);
                 }
             }

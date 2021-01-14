@@ -83,7 +83,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
      * Thus full iterations to do insertions is assumed to be （被认定为）a good compromised（一个好的妥协）
      * to saving memory and tail management complexity（复杂度）
      */
-    //回调线程链的头部，回调线程内部有具体任务 AbstractChannelHandlerContext
+    //回调线程链的头部，回调线程内部有具体任务 ，就是执行 handler的 handlerAdd()方法
     // new PendingHandlerAddedTask(new DefaultChannelHandlerContext())，看上面英文解释
     private PendingHandlerCallback pendingHandlerCallbackHead;
 
@@ -127,10 +127,11 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         /**
          * group=null
          * name 没指定的话，netty就生成一个
-         * handler  -> 一般都是 ChannelInitializer ，这是个特殊的handler
-         *           一般ChannelInitializer都是一个匿名内部类，
-         *                有程序员创建的，
-         *                也有netty自己创建的（见 -> ServerBootStrap -> init(Channel channel)）
+         * handler -> 会有各种 handler，程序员自己加的(TestZhangHandler)，netty自己的,
+         *  还有一种最为特殊的handler  -> ChannelInitializer
+         * abstract  ChannelInitializer<Channel> 这是个特殊的handler,一般 netty 创建的 ChannelInitializer都是一个匿名内部类 ->
+         *                                                  （见 -> ServerBootStrap -> init(Channel channel)）
+         * 程序员创建的可以是个匿名内部类，也可以创建一个它的子类。
          */
         return new DefaultChannelHandlerContext(this, childExecutor(group), name, handler);
     }
@@ -215,10 +216,11 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         /**
          * group=null
          * name =null
-         * handler  -> 一般都是 ChannelInitializer ，这是个特殊的handler
-         *           一般ChannelInitializer都是一个匿名内部类，
-         *                有程序员创建的，
-         *                也有netty自己创建的（见 -> ServerBootStrap -> init(Channel channel)）
+         * handler -> 会有各种 handler，程序员自己加的(TestZhangHandler)，netty自己的,
+         *  还有一种最为特殊的handler  -> ChannelInitializer
+         * abstract  ChannelInitializer<Channel> 这是个特殊的handler,一般 netty 创建的 ChannelInitializer都是一个匿名内部类 ->
+         *                                                  （见 -> ServerBootStrap -> init(Channel channel)）
+         * 程序员创建的可以是个匿名内部类，也可以创建一个它的子类。
          */
         final AbstractChannelHandlerContext newCtx;
         synchronized (this) {
@@ -231,11 +233,13 @@ public class DefaultChannelPipeline implements ChannelPipeline {
             /**
              * group=null
              * name =null   filterName(name, handler)   当我们没有指定名字时  给我们默认生成一个
-             * handler  -> 一般都是 ChannelInitializer ，这是个特殊的handler
-             *           一般ChannelInitializer都是一个匿名内部类，
-             *                有程序员创建的，
-             *                也有netty自己创建的（见 -> ServerBootStrap -> init(Channel channel)）
+             * handler -> 会有各种 handler，程序员自己加的(TestZhangHandler)，netty自己的,
+             *  还有一种最为特殊的handler  -> ChannelInitializer
+             * abstract  ChannelInitializer<Channel> 这是个特殊的handler,一般 netty 创建的 ChannelInitializer都是一个匿名内部类 ->
+             *                                                  （见 -> ServerBootStrap -> init(Channel channel)）
+             * 程序员创建的可以是个匿名内部类，也可以创建一个它的子类。
              * newCtx = new DefaultChannelHandlerContext()
+             * 由此可见 pipeline 这条链，每一个节点是个 AbstractChannelHandlerContext
              */
             newCtx = newContext(group, filterName(name, handler), handler);
 
@@ -243,7 +247,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
              * 将这个 DefaultChannelHandlerContext 添加到pipeline中
              * 此时本类（DefaultChannelPipeline）处理线 head -> DefaultChannelHandlerContext -> tail
              * 这三个类都继承  AbstractChannelHandlerContext
-             * 注意netty的加入pipline，并不是加入到数组或者集合中，不像spring那样，netty是链状结构，跟链表差不多
+             * 注意netty的加入pipeline，并不是加入到数组或者集合中，不像spring那样，netty是链状结构，跟链表差不多
              */
             addLast0(newCtx);
 
@@ -274,7 +278,11 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     }
 
     private void addLast0(AbstractChannelHandlerContext newCtx) {
-        //newCtx=new DefaultChannelHandlerContext()
+        /**
+         * newCtx=new DefaultChannelHandlerContext()
+         * 仔细看方法名 是 addLast，然后看代码，是将这个handler放到了 tail 的前面，也就是倒数第二的位置
+         * 每次新家一个handler 都是这样的，放在倒数第二的问题
+         */
         AbstractChannelHandlerContext prev = tail.prev;
         newCtx.prev = prev;
         newCtx.next = tail;
@@ -420,10 +428,10 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     @Override
     public final ChannelPipeline addLast(ChannelHandler... handlers) {
         /**
-         * handlers ->  ChannelInitializer<Channel>  这是个特殊的handler
-         * 一般ChannelInitializer都是一个匿名内部类，
-         *    有程序员创建的，
-         *    也有netty自己创建的（见 -> ServerBootStrap -> init(Channel channel)）
+         * 会有各种 handler，程序员自己加的(TestZhangHandler)，netty自己的，还有一种最为特殊的handler  -> ChannelInitializer
+         *  abstract  ChannelInitializer<Channel>  这是个特殊的handler,一般 netty 创建的 ChannelInitializer都是一个匿名内部类 - >
+         *                                                  （见 -> ServerBootStrap -> init(Channel channel)）
+         * 程序员创建的可以是个匿名内部类，也可以创建一个它的子类
          */
         return addLast(null, handlers);
     }
@@ -445,10 +453,11 @@ public class DefaultChannelPipeline implements ChannelPipeline {
             /**
              * executor  -> null
              * name -> null
-             * h  -> 一般都是 ChannelInitializer ，这是个特殊的handler
-             *       一般ChannelInitializer都是一个匿名内部类，
-             *          有程序员创建的，
-             *          也有netty自己创建的（见 -> ServerBootStrap -> init(Channel channel)）
+             * h -> 会有各种 handler，程序员自己加的(TestZhangHandler)，netty自己的,
+             *  还有一种最为特殊的handler  -> ChannelInitializer
+             * abstract  ChannelInitializer<Channel> 这是个特殊的handler,一般 netty 创建的 ChannelInitializer都是一个匿名内部类 ->
+             *                                                  （见 -> ServerBootStrap -> init(Channel channel)）
+             * 程序员创建的可以是个匿名内部类，也可以创建一个它的子类。
              */
             addLast(executor, null, h);
         }
@@ -486,6 +495,10 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
     @Override
     public final ChannelPipeline remove(ChannelHandler handler) {
+        /** 根据 handler ，找出 该handler 上下文
+         * pipeline 这条链 里面存放的实际是 一个个 AbstractChannelHandlerContext（
+         * 所以删除的也是  AbstractChannelHandlerContext
+         */
         remove(getContextOrDie(handler));
         return this;
     }
@@ -525,6 +538,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         assert ctx != head && ctx != tail;
 
         synchronized (this) {
+            // 删除方法很简单，类似于链表的移动指针
             remove0(ctx);
 
             // If the registered is false it means that the channel was not registered on an eventloop yet.
@@ -703,6 +717,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     private void callHandlerRemoved0(final AbstractChannelHandlerContext ctx) {
         // Notify the complete removal.
         try {
+            // AbstractChannelHandlerContext 从pipeline移除后，执行某些逻辑
             ctx.callHandlerRemoved();
         } catch (Throwable t) {
             fireExceptionCaught(new ChannelPipelineException(
@@ -714,8 +729,10 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         assert channel.eventLoop().inEventLoop();
         if (firstRegistration) {
             firstRegistration = false;
-            // 我们现在注册到EventLoop。是时候调用通道处理程序的回调了，
-            // 这些都是在注册之前添加的。
+            /**
+             * 开始回调DefaultChannelPipeline线程链中的任务了，也就是执行pipeline中 一个个 handler 的 handlerAdded（)方法
+             * 线程链中的任务 是在哪添加的？ 是在bootStrap的 init（）方法中的 pipeline.addlast(channel)
+             */
             callHandlerAddedForAllHandlers();
         }
     }
@@ -788,6 +805,10 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
     @Override
     public final ChannelHandlerContext context(ChannelHandler handler) {
+        /**
+         * 根据 handler ，找出 该handler 上下文
+         * pipeline 这条链 里面存放的实际是 一个个 handlerContext（handler）
+         */
         if (handler == null) {
             throw new NullPointerException("handler");
         }
@@ -1175,6 +1196,10 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     }
 
     private void callHandlerAddedForAllHandlers() {
+        /**
+         * 开始回调DefaultChannelPipeline线程链中的任务了，也就是执行pipeline中 一个个 handler 的 HandlerAdded（)方法
+         * 线程链中的任务 是在哪添加的？ 是在bootStrap的 init（）方法中的 pipeline.addlast(channel)
+         */
         final PendingHandlerCallback pendingHandlerCallbackHead;
         synchronized (this) {
             assert !registered;
@@ -1186,16 +1211,18 @@ public class DefaultChannelPipeline implements ChannelPipeline {
             this.pendingHandlerCallbackHead = null;
         }
 
-        //这必须发生在synchronized(…)块之外，否则handlerAdded(…)可能在while中被调用
-        //如果handleradd(…)试图从外部添加另一个处理程序，则会持有锁，从而产生死锁
-        // EventLoop。
+        /**
+         * 这必须发生在synchronized(…)块之外，因为 while 内部逻辑 可能还会调用callHandlerAddedForAllHandlers（）
+         * 也就还会进入synchronized(），这样 会持续 持有锁，从而产生死锁
+         * EventLoop。
+         */
         PendingHandlerCallback task = pendingHandlerCallbackHead;
         while (task != null) {
             task.execute();
             task = task.next;
         }
     }
-    // 看方法名，CallbackLater，所以只是加入了回调链，待会在一个个回调
+    // 看方法名，CallbackLater，所以只是加入了回调链，待会在一个个回调 handler 的 方法 Handleradd（）
     private void callHandlerCallbackLater(AbstractChannelHandlerContext ctx, boolean added) {
         assert !registered;
         /**
@@ -1212,8 +1239,9 @@ public class DefaultChannelPipeline implements ChannelPipeline {
             /**
              *  Find the tail of the linked-list. 看英文注释！！！！
              *   方法的最开始已经将新创建的 AbstractChannelHandlerContext 放到 一个回调线程里。
-             *   下面整个while方法块的作用就是 ：将这个新的回调线程（有新的 AbstractChannelHandlerContext）放到队列末尾，暂未执行
-             *   这个回调线程也是一个 链状结构，一个接一个的
+             *   下面整个while方法块的作用就是 ：将这个新的回调线程（线程里有新的 AbstractChannelHandlerContext）放到队列末尾，暂未执行
+             *   这个回调线程也是一个 链状结构，一个接一个的。
+             *   register（）结束后 一个个回调 handler 的 方法 callHandleradd（）
              */
 
             while (pending.next != null) {
@@ -1328,6 +1356,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
         @Override
         public ChannelHandler handler() {
+            // head 的 handler就是 本身,tail的handler也是它本身
             return this;
         }
 
@@ -1394,6 +1423,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
         @Override
         public ChannelHandler handler() {
+            // head 的 handler就是 本身,tail的handler也是它本身
             return this;
         }
 
