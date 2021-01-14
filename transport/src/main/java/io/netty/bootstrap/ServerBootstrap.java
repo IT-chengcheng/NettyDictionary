@@ -174,11 +174,12 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
         synchronized (childAttrs) {
             currentChildAttrs = childAttrs.entrySet().toArray(newAttrArray(0));
         }
-
+        // p -> DefaultChannelPipeline
         p.addLast(new ChannelInitializer<Channel>() {
             @Override
             public void initChannel(final Channel ch) throws Exception {
                 // ch -> NioServerSocketChannel
+                // ch.pipeline() -> DefaultChannelPipeline
                 final ChannelPipeline pipeline = ch.pipeline();
 
                 //config.handler() 是 自己创建的，处理客户端连接的handler

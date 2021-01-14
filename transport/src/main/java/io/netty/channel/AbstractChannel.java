@@ -54,7 +54,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
 
     private volatile SocketAddress localAddress;
     private volatile SocketAddress remoteAddress;
-    private volatile EventLoop eventLoop;
+    private volatile EventLoop eventLoop; // eventLoop -> NioEventLoop extends SingleThreadEventLoop
     private volatile boolean registered;
     private boolean closeInitiated;
     private Throwable initialCloseCause;
@@ -469,16 +469,24 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                 return;
             }
 
-            //promise=DefaultChannelPromise
-            //eventLoop=NioEventLoop extends SingleThreadEventLoop
-            //this.eventLoop=NioEventLoop==>SingleThreadEventLoop.this
+            /**
+             *  promise=DefaultChannelPromise ,这个类 与 NioServerSocketChannel 互相持有
+             * eventLoop -> NioEventLoop extends SingleThreadEventLoop
+             */
             AbstractChannel.this.eventLoop = eventLoop;
 
-            //他们最终都调用了register0   eventLoop.inEventLoop()的作用？
+            /**
+             * eventLoop -> NioEventLoop extends SingleThreadEventLoop
+             * 判断当前线程  是不是正在执行的线程
+             * 后续还有很多这种判断，这样判断的目的：我认为netty的意思是不能让程序无限开启线程，如果已经开启了线程A，
+             * 那么线程A不能在开启另外一个线程执行任务task，而是让这个task在当前线程A执行，
+             * 主线程可以继续开启线程B,C......
+             */
             if (eventLoop.inEventLoop()) {
                 register0(promise);
             } else {
                 try {
+                    // 整个netty开启线程都是执行这样的操作，进入的是 SingleThreadEventExecutor -> execute()
                     eventLoop.execute(new Runnable() {
                         @Override
                         public void run() {
@@ -499,15 +507,19 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
 
         private void register0(ChannelPromise promise) {
             try {
-                // 检查通道是否仍然打开，因为它可以在寄存器的平均时间内关闭
-                // 调用在eventLoop之外
-
-                //promise=DefaultChannelPromise
+                /**
+                 *  promise=DefaultChannelPromise
+                 * 检查通道是否仍然打开，因为它可以在寄存器的平均时间内关闭
+                 * 调用在eventLoop之外
+                 */
                 if (!promise.setUncancellable() || !ensureOpen(promise)) {
                     return;
                 }
                 boolean firstRegistration = neverRegistered;
-                //调用NioServerSocketChannel 通过反射创建出来nio底层channel的register方法  选择器看不同操作系统
+                /**
+                 * 最终做了一件事 ：ServerSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+                 * 进入 ->  AbstractNioChannel.doRegister() ,这是NioServerSocketChannel 的父类
+                 */
                 doRegister();
                 neverRegistered = false;
                 registered = true;
@@ -515,9 +527,10 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                 // 确保在实际通知承诺之前调用handlerAdded(…)。这是需要的
                 // 用户可能已经通过ChannelFutureListener中的管道触发事件。
 
-                //会执行handlerAdded方法
+                //会执行handlerAdded方法  DefaultChannelPipeline
                 pipeline.invokeHandlerAddedIfNeeded();
 
+               // promise -> DefaultChannelPromise,触发listenner 方法
                 safeSetSuccess(promise);
                 //会执行channelRegistered
                 pipeline.fireChannelRegistered();

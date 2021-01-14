@@ -208,7 +208,7 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
      * call the super method in that case.
      */
     public B validate() {
-        // 看上面因为注释，一定要注意子类实现！！！！！
+        // 看上面英文注释，一定要注意子类实现！！！！！
         if (group == null) {
             throw new IllegalStateException("group not set");
         }
@@ -280,25 +280,28 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
     }
 
     private ChannelFuture doBind(final SocketAddress localAddress) {
-        //初始化和注册  regFuture  ->   DefaultChannelPromise
+        // regFuture  ->   DefaultChannelPromise extends DefaultPromise
         final ChannelFuture regFuture = initAndRegister();
         // channel -> NioServerSocketChannel
         final Channel channel = regFuture.channel();
         if (regFuture.cause() != null) {
             return regFuture;
         }
-
-        if (regFuture.isDone()) {// 会进入这个判断，看下面英文注释
+        // regFuture  ->   DefaultChannelPromise extends DefaultPromise
+        if (regFuture.isDone()) {
             // At this point we know that the registration was complete and successful.
             ChannelPromise promise = channel.newPromise();
             doBind0(regFuture, channel, localAddress, promise);
             return promise;
         } else {
-            // Registration future is almost always fulfilled already, but just in case it's not.
+            // Registration future is almost always fulfilled 满足的 already, but just in case it's not.
+            // pending  /ˈpendɪŋ/  未决定的；行将发生的
+            //  PendingRegistrationPromise extends DefaultChannelPromise
             final PendingRegistrationPromise promise = new PendingRegistrationPromise(channel);
             regFuture.addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
+                    // future -> DefaultChannelPromise extends DefaultPromise
                     Throwable cause = future.cause();
                     if (cause != null) {
                         // Registration on the EventLoop failed so fail the ChannelPromise directly to not cause an
@@ -308,7 +311,11 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
                         // Registration was successful, so set the correct executor to use.
                         // See https://github.com/netty/netty/issues/2586
                         promise.registered();
-
+                        /**
+                         * regFuture  ->  DefaultChannelPromise extends DefaultPromise
+                         * channel    ->  NioServerSocketChannel
+                         * promise    ->  PendingRegistrationPromise extends DefaultChannelPromise
+                         */
                         doBind0(regFuture, channel, localAddress, promise);
                     }
                 }

@@ -146,6 +146,7 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
     }
 
     static void invokeChannelRegistered(final AbstractChannelHandlerContext next) {
+        //  executor -> NioEventLoop
         EventExecutor executor = next.executor();
         if (executor.inEventLoop()) {
             next.invokeChannelRegistered();
@@ -162,6 +163,7 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
     private void invokeChannelRegistered() {
         if (invokeHandler()) {
             try {
+                //  DefaultChannelPipline$HeaderContext
                 ((ChannelInboundHandler) handler()).channelRegistered(this);
             } catch (Throwable t) {
                 notifyHandlerException(t);
@@ -966,6 +968,8 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
         // any pipeline events ctx.handler() will miss them because the state will not allow it.
         //判断handlerState等于1  并且设置handlerState为2
         if (setAddComplete()) {
+            //  handler() ->  匿名内部类 ServerBootstrap$2223,也就是 ServerBootstrap.ChannelInitializer
+            // 所以会进入 ChannelInitializer.handlerAdded()
             handler().handlerAdded(this);
         }
     }

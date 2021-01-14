@@ -102,7 +102,11 @@ public final class NioEventLoop extends SingleThreadEventLoop {
      *
      */
     private Selector selector; //自定义的selector -> SelectedSelectionKeySetSelector,看一下这个类！！
-    private Selector unwrappedSelector;//替换了数据结构selectedKeys   Set<SelectionKey> selectedKeys ->  netty自定义的SelectedSelectionKeySet
+    /**
+     * 替换了数据结构selectedKeys   Set<SelectionKey> selectedKeys ->  netty自定义的SelectedSelectionKeySet
+     *  最终会往这个selector上注册 连接事件。 触发位置 -> AbstractNioChannel.doRegister()
+     */
+    private Selector unwrappedSelector;
     //自定义的事件集合 ->  SelectedSelectionKeySet()
     private SelectedSelectionKeySet selectedKeys;
 

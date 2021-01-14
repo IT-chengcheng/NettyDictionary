@@ -104,13 +104,14 @@ public abstract class ChannelInitializer<C extends Channel> extends ChannelInbou
      */
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        //ctx -> DefaultChannelHandlerContext
+        // ctx.channel() -> NioServerSocketChannel
         if (ctx.channel().isRegistered()) {
-            //对于当前的DefaultChannelPipeline实现，这应该总是正确的。
-            //在handlerAdded(…)中调用initChannel(…)的好处是没有订单
-            //如果一个通道初始化器将添加另一个通道初始化器，会让人感到惊讶。这是所有的处理程序
-            //将按预期顺序添加。
-
-
+            /**
+             * 只要注册了一次，每次都会进入这个判断
+             * 在handlerAdded(…)中调用initChannel(…)的好处是 方法可以顺序执行
+             * 这是所有的处理程序 将按预期顺序添加
+             */
             if (initChannel(ctx)) {
 
                 // We are done with init the Channel, removing the initializer now.
@@ -128,7 +129,12 @@ public abstract class ChannelInitializer<C extends Channel> extends ChannelInbou
     private boolean initChannel(ChannelHandlerContext ctx) throws Exception {
         if (initMap.add(ctx)) { // Guard against re-entrance.
             try {
-                //我们写的ChannelInitializer.initChannel的方法 将在这里被调用
+
+                /**
+                 * 我们写的ChannelInitializer.initChannel的方法 将在这里被调用
+                 * netty 自己写的 ChannelInitializer.initChannel ，也会在这里调用
+                 * ctx.channel() -> NioServerSocketChannel
+                 */
                 initChannel((C) ctx.channel());
             } catch (Throwable cause) {
                 // Explicitly call exceptionCaught(...) as we removed the handler before calling initChannel(...).

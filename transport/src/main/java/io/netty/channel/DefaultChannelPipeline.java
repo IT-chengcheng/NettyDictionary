@@ -126,7 +126,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     private AbstractChannelHandlerContext newContext(EventExecutorGroup group, String name, ChannelHandler handler) {
         //group=null
         //name =没传系统默认创建
-        //handler=new ChannelInitializer<Channel>
+        //handler=new ChannelInitializer<Channel>,以及其他handler
         return new DefaultChannelHandlerContext(this, childExecutor(group), name, handler);
     }
 

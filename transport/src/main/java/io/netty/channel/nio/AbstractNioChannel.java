@@ -50,7 +50,7 @@ public abstract class AbstractNioChannel extends AbstractChannel {
     private static final InternalLogger logger =
             InternalLoggerFactory.getInstance(AbstractNioChannel.class);
 
-    //serverSocketChannel
+    // java-nio 原生 ServerSocketChannel
     private final SelectableChannel ch;
     //SelectionKey.OP_ACCEPT
     protected final int readInterestOp;
@@ -389,8 +389,11 @@ public abstract class AbstractNioChannel extends AbstractChannel {
         boolean selected = false;
         for (;;) {
             try {
-                //javaChannel()   ==>  ServerSocketChannel 通过反射创建出来nio底层channel
-                //调用Nio底层将ServerSocketChannel注册到selector上
+                /**
+                 * javaChannel()  ->  ServerSocketChannel
+                 * 真正开始注册事件  ServerSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+                 * 但是注册的的是 0，也就是对任何事件都不感兴趣，通过返回结果selectionKey，后续再改变感兴趣的事件
+                 */
                 selectionKey = javaChannel().register(eventLoop().unwrappedSelector(), 0, this);
                 return;
             } catch (CancelledKeyException e) {
