@@ -968,8 +968,12 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
         // any pipeline events ctx.handler() will miss them because the state will not allow it.
         //判断handlerState等于1  并且设置handlerState为2
         if (setAddComplete()) {
-            //  handler() ->  匿名内部类 ServerBootstrap$2223,也就是 ServerBootstrap.ChannelInitializer
-            // 所以会进入 ChannelInitializer.handlerAdded()
+            /**
+             * 当前执行类是 DefaultChannelHandlerContext，所以会进入 DefaultChannelHandlerContext. handler()
+             * 取到的 DefaultChannelHandlerContext的 属性 handler，这个属性赋的什么值？ 赋的是匿名内部类 ServerBootstrap$2223
+             * 也就是 ServerBootstrap.ChannelInitializer，所以会进入 ChannelInitializer.handlerAdded()
+             * 给DefaultChannelHandlerContext的的handler的属性赋值的入口是 ServerBootStrap -> init(Channel channel)
+             */
             handler().handlerAdded(this);
         }
     }

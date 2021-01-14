@@ -165,6 +165,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
         ChannelPipeline p = channel.pipeline();
 
         final EventLoopGroup currentChildGroup = childGroup;
+        // 一般都是 ChannelInitializer ，这是个特殊的handler
         final ChannelHandler currentChildHandler = childHandler;
         final Entry<ChannelOption<?>, Object>[] currentChildOptions;
         final Entry<AttributeKey<?>, Object>[] currentChildAttrs;
@@ -182,7 +183,14 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
                 // ch.pipeline() -> DefaultChannelPipeline
                 final ChannelPipeline pipeline = ch.pipeline();
 
-                //config.handler() 是 自己创建的，处理客户端连接的handler
+                /**
+                 * config.handler() 是 自己创建的，处理客户端连接的handler
+                 * 如果程序员没有自己新建的 “用于处理客户端连接的” handler，那就不用加
+                 * 这样一来，处理客户端连接的handler 全都是netty自己默认的
+                 * 继续往下看代码，会看到 pipeline又加了一个 ServerBootstrapAcceptor  extends ChannelInboundHandlerAdapter
+                 * 并且这个 特殊的handler ChannelInitializer 会从DefaultChannelPipeline移除掉，最终 pipeline里面入出现如下链状结构
+                 *   head -> ServerBootstrapAcceptor -> tail  (前提是程序员没有自己添加“用于处理客户端连接的” handler)
+                 */
                 ChannelHandler handler = config.handler();
                 if (handler != null) {
                     pipeline.addLast(handler);
@@ -191,9 +199,21 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
                 ch.eventLoop().execute(new Runnable() {
                     @Override
                     public void run() {
-
-                        //bossGroup将客户端连接转交给workerGroup
-                        // ServerBootstrapAcceptor  extends ChannelInboundHandlerAdapter
+                        /**
+                         * 继续添加用于处理客户端连接的 handler
+                         *  bossGroup将客户端连接转交给workerGroup
+                         *  ServerBootstrapAcceptor  extends ChannelInboundHandlerAdapter
+                         *  currentChildHandler 一般都是 ChannelInitializer ，这是个特殊的handler，这个特殊的handler
+                         *  1、跟外面的这个 ChannelInitializer 相同点：
+                         *  都是一个特殊的handler，用完接着 从DefaultChannelPipeline中移除，它的作用就是添加真正的handler
+                         *  2、currentChildHandler 也就是 childHandler 跟外面的这个 ChannelInitializer 不同点：
+                         *       外面的ChannelInitializer 添加的handler 是处理客户端连接的
+                         *       currentChildHandler 添加的handler 是 处理读写事件的，看下 new ServerBootstrapAcceptor()入参
+                         *        就包含这个 currentChildHandler （childHandler ），说明 ServerBootstrapAcceptor 内部就是拿到
+                         *        客户端连接后，又开启pipeline，然后执行匿名内部类 currentChildHandler ，添加各种处理读写事件的handler
+                         *          执行的是程序员 加的 bootstrap.childHandler(new ChannelInitializer<NioSocketChannel>() {}，
+                         *          这个内名内部类的  public void initChannel(final Channel ch)
+                         */
                         pipeline.addLast(new ServerBootstrapAcceptor(
                                 ch, currentChildGroup, currentChildHandler, currentChildOptions, currentChildAttrs));
                     }

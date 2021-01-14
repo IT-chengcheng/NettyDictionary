@@ -29,7 +29,12 @@ final class DefaultChannelHandlerContext extends AbstractChannelHandlerContext {
         //name =没传系统默认创建
         //handler=new ChannelInitializer<Channel>
         super(pipeline, executor, name, handler.getClass());
-        //此Handler是ChannelInitializer
+        /**
+         * handler  -> 一般都是 ChannelInitializer ，这是个特殊的handler
+         *           一般ChannelInitializer都是一个匿名内部类，
+         *                有程序员创建的，
+         *                也有netty自己创建的（见 -> ServerBootStrap -> init(Channel channel)）
+         */
         this.handler = handler;
     }
 

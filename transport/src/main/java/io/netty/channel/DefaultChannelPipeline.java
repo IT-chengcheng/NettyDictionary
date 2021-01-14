@@ -80,11 +80,11 @@ public class DefaultChannelPipeline implements ChannelPipeline {
      * all the pending {@link #callHandlerAdded0(AbstractChannelHandlerContext)}.
      *
      * We only keep the head because it is expected that the list is used infrequently and its size is small.
-     * Thus full iterations to do insertions is assumed to be a good compromised to saving memory and tail management
-     * complexity.
+     * Thus full iterations to do insertions is assumed to be （被认定为）a good compromised（一个好的妥协）
+     * to saving memory and tail management complexity（复杂度）
      */
-    //new PendingHandlerAddedTask(new DefaultChannelHandlerContext())
-
+    //回调线程链的头部，回调线程内部有具体任务 AbstractChannelHandlerContext
+    // new PendingHandlerAddedTask(new DefaultChannelHandlerContext())，看上面英文解释
     private PendingHandlerCallback pendingHandlerCallbackHead;
 
     /**
@@ -124,9 +124,14 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     }
 
     private AbstractChannelHandlerContext newContext(EventExecutorGroup group, String name, ChannelHandler handler) {
-        //group=null
-        //name =没传系统默认创建
-        //handler=new ChannelInitializer<Channel>,以及其他handler
+        /**
+         * group=null
+         * name 没指定的话，netty就生成一个
+         * handler  -> 一般都是 ChannelInitializer ，这是个特殊的handler
+         *           一般ChannelInitializer都是一个匿名内部类，
+         *                有程序员创建的，
+         *                也有netty自己创建的（见 -> ServerBootStrap -> init(Channel channel)）
+         */
         return new DefaultChannelHandlerContext(this, childExecutor(group), name, handler);
     }
 
@@ -207,25 +212,51 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
     @Override
     public final ChannelPipeline addLast(EventExecutorGroup group, String name, ChannelHandler handler) {
-        //group=null
-        //name =null
-        //handler=new ChannelInitializer<Channel>
+        /**
+         * group=null
+         * name =null
+         * handler  -> 一般都是 ChannelInitializer ，这是个特殊的handler
+         *           一般ChannelInitializer都是一个匿名内部类，
+         *                有程序员创建的，
+         *                也有netty自己创建的（见 -> ServerBootStrap -> init(Channel channel)）
+         */
         final AbstractChannelHandlerContext newCtx;
         synchronized (this) {
-            //检查添加
+            /**
+             * 检查 是否添加了 h.added ？，将属性 added = true
+             *      是否 h.isSharable() ？
+             */
             checkMultiplicity(handler);
 
-            //filterName(name, handler)   当我们没有指定名字时  给我们默认生成一个
-            //new DefaultChannelHandlerContext()
+            /**
+             * group=null
+             * name =null   filterName(name, handler)   当我们没有指定名字时  给我们默认生成一个
+             * handler  -> 一般都是 ChannelInitializer ，这是个特殊的handler
+             *           一般ChannelInitializer都是一个匿名内部类，
+             *                有程序员创建的，
+             *                也有netty自己创建的（见 -> ServerBootStrap -> init(Channel channel)）
+             * newCtx = new DefaultChannelHandlerContext()
+             */
             newCtx = newContext(group, filterName(name, handler), handler);
 
+            /**
+             * 将这个 DefaultChannelHandlerContext 添加到pipeline中
+             * 此时本类（DefaultChannelPipeline）处理线 head -> DefaultChannelHandlerContext -> tail
+             * 这三个类都继承  AbstractChannelHandlerContext
+             * 注意netty的加入pipline，并不是加入到数组或者集合中，不像spring那样，netty是链状结构，跟链表差不多
+             */
             addLast0(newCtx);
 
             // If the registered is false it means that the channel was not registered on an eventLoop yet.
             // In this case we add the context to the pipeline and add a task that will call
             // ChannelHandler.handlerAdded(...) once the channel is registered.
+            /**
+             * 先看上面英文注释
+             * 整个方法，会进入多次，第一次进入是这里触发的 :
+             * ServerBootStrap -> init(Channel channel) ->  pipline.add(ChannelInitializer netty自己的匿名内部类)
+             */
             if (!registered) {
-                //判断handlerState属性等于0  并且设置为1
+                //判断handlerState属性等于0  并且设置为1    pending 未决定的；行将发生的
                 newCtx.setAddPending();
                 callHandlerCallbackLater(newCtx, true);
                 return this;
@@ -388,12 +419,21 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
     @Override
     public final ChannelPipeline addLast(ChannelHandler... handlers) {
-        //handlers=new ChannelInitializer<Channel>
+        /**
+         * handlers ->  ChannelInitializer<Channel>  这是个特殊的handler
+         * 一般ChannelInitializer都是一个匿名内部类，
+         *    有程序员创建的，
+         *    也有netty自己创建的（见 -> ServerBootStrap -> init(Channel channel)）
+         */
         return addLast(null, handlers);
     }
 
+
     @Override
     public final ChannelPipeline addLast(EventExecutorGroup executor, ChannelHandler... handlers) {
+
+        // 从 NioServerSocketChannel 取出 DefaultChannelPiepeline 执行这个方法
+
         if (handlers == null) {
             throw new NullPointerException("handlers");
         }
@@ -402,9 +442,14 @@ public class DefaultChannelPipeline implements ChannelPipeline {
             if (h == null) {
                 break;
             }
-            //executor=null
-            //name =null
-            //h=new ChannelInitializer<Channel>
+            /**
+             * executor  -> null
+             * name -> null
+             * h  -> 一般都是 ChannelInitializer ，这是个特殊的handler
+             *       一般ChannelInitializer都是一个匿名内部类，
+             *          有程序员创建的，
+             *          也有netty自己创建的（见 -> ServerBootStrap -> init(Channel channel)）
+             */
             addLast(executor, null, h);
         }
 
@@ -1150,16 +1195,27 @@ public class DefaultChannelPipeline implements ChannelPipeline {
             task = task.next;
         }
     }
-
+    // 看方法名，CallbackLater，所以只是加入了回调链，待会在一个个回调
     private void callHandlerCallbackLater(AbstractChannelHandlerContext ctx, boolean added) {
         assert !registered;
-
+        /**
+         * PendingHandlerAddedTask extends PendingHandlerCallback implements Runnable
+         * PendingHandlerRemovedTask  extends PendingHandlerCallback implements Runnable
+         * 这两个类就是一个回调线程 就是为了开启线程执行 AbstractChannelHandlerContext ctx
+         * 这个回调线程是一条链，一个接一个，这里只是将这个新的回调线程放到队列末尾，暂未执行
+         */
         PendingHandlerCallback task = added ? new PendingHandlerAddedTask(ctx) : new PendingHandlerRemovedTask(ctx);
         PendingHandlerCallback pending = pendingHandlerCallbackHead;
         if (pending == null) {
             pendingHandlerCallbackHead = task;
         } else {
-            // Find the tail of the linked-list.
+            /**
+             *  Find the tail of the linked-list. 看英文注释！！！！
+             *   方法的最开始已经将新创建的 AbstractChannelHandlerContext 放到 一个回调线程里。
+             *   下面整个while方法块的作用就是 ：将这个新的回调线程（有新的 AbstractChannelHandlerContext）放到队列末尾，暂未执行
+             *   这个回调线程也是一个 链状结构，一个接一个的
+             */
+
             while (pending.next != null) {
                 pending = pending.next;
             }

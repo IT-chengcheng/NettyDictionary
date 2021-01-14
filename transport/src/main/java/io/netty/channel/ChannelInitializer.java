@@ -130,7 +130,7 @@ public abstract class ChannelInitializer<C extends Channel> extends ChannelInbou
         if (initMap.add(ctx)) { // Guard against re-entrance.
             try {
 
-                /**
+                /** ctx -> DefaultChannelHandelerContext extends AbstracctChannelHandlerContext
                  * 我们写的ChannelInitializer.initChannel的方法 将在这里被调用
                  * netty 自己写的 ChannelInitializer.initChannel ，也会在这里调用
                  * ctx.channel() -> NioServerSocketChannel
@@ -141,7 +141,11 @@ public abstract class ChannelInitializer<C extends Channel> extends ChannelInbou
                 // We do so to prevent multiple calls to initChannel(...).
                 exceptionCaught(ctx, cause);
             } finally {
-                //删除此节点
+                /**  删除handler,删除的是 特殊的handler -> ChannelInitializer，因为他的作用已经发挥完了，
+                 *      就是通过他的initChannel(ctx.channel()) 方法，添加真正的handler
+                 * ctx -> DefaultChannelHandelrContext extends AbstracctChannelHandlerContext
+                 * ctx.pipeline() - > DefaultChannelPipline
+                 */
                 ChannelPipeline pipeline = ctx.pipeline();
                 if (pipeline.context(this) != null) {
                     pipeline.remove(this);
