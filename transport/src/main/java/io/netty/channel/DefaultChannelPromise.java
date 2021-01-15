@@ -84,6 +84,7 @@ public class DefaultChannelPromise extends DefaultPromise<Void> implements Chann
 
     @Override
     public boolean trySuccess() {
+        // 注意：register()方法进去时，result会传null
         return trySuccess(null);
     }
 

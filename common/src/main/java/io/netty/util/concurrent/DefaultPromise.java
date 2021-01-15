@@ -97,6 +97,7 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
 
     @Override
     public boolean trySuccess(V result) {
+        // 注意：register()方法进去时，result会传null
         return setSuccess0(result);
     }
 
@@ -404,7 +405,12 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
         notifyListenerWithStackOverFlowProtection(eventExecutor, future, listener);
     }
 
+
     private void notifyListeners() {
+        /**
+         * 触发 interface GenericFutureListener extends EventListener
+         *  ->  void operationComplete(F future)
+         */
         EventExecutor executor = executor();
         if (executor.inEventLoop()) {
             final InternalThreadLocalMap threadLocals = InternalThreadLocalMap.get();
@@ -459,6 +465,10 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
     }
 
     private void notifyListenersNow() {
+        /**
+         * 触发 interface GenericFutureListener extends EventListener
+         *  ->  void operationComplete(F future)
+         */
         Object listeners;
         synchronized (this) {
             // Only proceed if there are listeners to notify and we are not already notifying listeners.
@@ -498,6 +508,10 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private static void notifyListener0(Future future, GenericFutureListener l) {
+        /**
+         * 触发 interface GenericFutureListener extends EventListener
+         *  ->  void operationComplete(F future)
+         */
         try {
             l.operationComplete(future);
         } catch (Throwable t) {
@@ -526,6 +540,7 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
     }
 
     private boolean setSuccess0(V result) {
+        // 通过register（）方法进入时，result会传null
         return setValue0(result == null ? SUCCESS : result);
     }
 
@@ -537,7 +552,10 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
         if (RESULT_UPDATER.compareAndSet(this, null, objResult) ||
             RESULT_UPDATER.compareAndSet(this, UNCANCELLABLE, objResult)) {
             if (checkNotifyWaiters()) {
-                // 触发 listenners方法 onComplete.....
+                /**
+                 * 触发 interface GenericFutureListener extends EventListener
+                 *  ->  void operationComplete(F future)
+                 */
                 notifyListeners();
             }
             return true;
