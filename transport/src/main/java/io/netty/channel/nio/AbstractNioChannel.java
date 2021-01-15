@@ -52,8 +52,14 @@ public abstract class AbstractNioChannel extends AbstractChannel {
 
     // java-nio 原生 ServerSocketChannel
     private final SelectableChannel ch;
-    //SelectionKey.OP_ACCEPT
+    /**readInterestOp 在 初始化 NioServerSocketChannel时，赋值 为  SelectionKey.OP_ACCEPT
+     * OP_READ = 1 << 0;      0001
+     * OP_WRITE = 1 << 2;     0100
+     * OP_CONNECT = 1 << 3;   1000
+     * OP_ACCEPT = 1 << 4;    0001 0000
+     */
     protected final int readInterestOp;
+    // selectionKey 就是 serverSocket.register(...) 的返回值，用成员变量保存一下，以后用它来改变感兴趣的事件
     volatile SelectionKey selectionKey;
     boolean readPending;
     private final Runnable clearReadPendingRunnable = new Runnable() {
@@ -418,15 +424,23 @@ public abstract class AbstractNioChannel extends AbstractChannel {
 
     @Override
     protected void doBeginRead() throws Exception {
-        // Channel.read() or ChannelHandlerContext.read() was called
+        /**
+         * Channel.read() or ChannelHandlerContext.read() was called
+         * 此方法 仅仅是 改变 selectionKey 的感兴趣的事件
+         */
         final SelectionKey selectionKey = this.selectionKey;
         if (!selectionKey.isValid()) {
             return;
         }
-
         readPending = true;
-
         final int interestOps = selectionKey.interestOps();
+        /**
+         * readInterestOp 在 初始化 NioServerSocketChannel时，赋值 为  SelectionKey.OP_ACCEPT
+         * OP_READ = 1 << 0;      0001
+         * OP_WRITE = 1 << 2;     0100
+         * OP_CONNECT = 1 << 3;   1000
+         * OP_ACCEPT = 1 << 4;    0001 0000
+         */
         if ((interestOps & readInterestOp) == 0) {
             selectionKey.interestOps(interestOps | readInterestOp);
         }
