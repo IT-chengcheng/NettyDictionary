@@ -280,7 +280,13 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
     }
 
     private ChannelFuture doBind(final SocketAddress localAddress) {
-        // regFuture  ->   DefaultChannelPromise extends DefaultPromise
+
+        /** regFuture  ->   DefaultChannelPromise extends DefaultPromise
+         * DefaultChannelPromise extends DefaultPromise  implements ChannelPromise
+         *                  interface ChannelPromise extends ChannelFuture extends Future
+         *                  所以 DefaultChannelPromise 也是个 ChannelFuture
+         *      有属性 Channel channel = NioServerSocketChannel
+         */
         final ChannelFuture regFuture = initAndRegister();
         // channel -> NioServerSocketChannel
         final Channel channel = regFuture.channel();
@@ -334,6 +340,7 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
              * 一定要注意：通过反射创建了NioServerSocketChannel，那么一定会执行它的构造方法，所以找到该类的构造方法
              *  NioServerSocketChannel属性：
              *                SelectableChannel   ch  =  java-nio 原生 ServerSocketChannel
+             *                SelectionKey selectionKey =  socket.register()方法的返回值的key,保留这个key是为了改变感兴趣事件
              *                Unsafe    unsafe   =    NioMessageUnsafe
              *                DefaultChannelPipeline  pipeline  = new DefaultChannelPipeline ()
              *                               AbstractChannelHandlerContext   tail = TailContext
@@ -363,14 +370,14 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
         /**
          * 1、config().group() -> bossGroup  -> NioEventLoopGroup ;
          * 2、register开启了事件轮询线程
-         * 3、返回对象 regFuture -> DefaultChannelPromise
+         * 3、入参 channel -> NioServerSocketChannel
+         * 4、返回对象 regFuture -> DefaultChannelPromise
          *  DefaultChannelPromise extends DefaultPromise  implements ChannelPromise
          *                  interface ChannelPromise extends ChannelFuture extends Future
-         *          所以 DefaultChannelPromise 也是个 ChannelFuture
+         *                  所以 DefaultChannelPromise 也是个 ChannelFuture
          *          有属性 Channel channel = NioServerSocketChannel
-         * 4、入参 channel -> NioServerSocketChannel
+         * register（）方法，主要就是 注册 selector感兴趣的事件，以及 pipeline.inovke(...)，pipeline.fire(.....)
          */
-
         ChannelFuture regFuture = config().group().register(channel);
         if (regFuture.cause() != null) {
             if (channel.isRegistered()) {

@@ -37,6 +37,8 @@ public class NettyTestHendler extends ChannelInboundHandlerAdapter{
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        // ctx 传入的是 该对象 本身
+        ctx.fireChannelRegistered();
         System.out.println("NettyTestHendler channelRegistered");
     }
 

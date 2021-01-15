@@ -142,14 +142,29 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
 
     @Override
     public ChannelHandlerContext fireChannelRegistered() {
+
+        /**
+         * findContextInbound(MASK_CHANNEL_REGISTERED)   -> 获取下一个 入栈处理器
+         *
+         * 一个接一个执行 pipeline链的hanlder 的 方法 invokeChannelRegistered()
+         *  （前提是 A-handler的channelRegistered（）方法执行完毕后，接着调用ctx.fireChannelRegistered() ，才会调用 B-handler）
+         */
         invokeChannelRegistered(findContextInbound(MASK_CHANNEL_REGISTERED));
         return this;
     }
 
     static void invokeChannelRegistered(final AbstractChannelHandlerContext next) {
-        //  executor -> NioEventLoop
+        /**
+         * executor -> NioEventLoop
+         * 这个方法前，会通过“findContextInbound”或者“findContextOutbound” 找到下一个“入栈”后者“出栈”处理器
+         * 然后将这个处理器 传入，作为next
+         */
         EventExecutor executor = next.executor();
         if (executor.inEventLoop()) {
+/**
+ * 一个接一个执行 pipeline链的hanlder 的 方法 invokeChannelRegistered()
+ *  （前提是 A-handler的channelRegistered（）方法执行完毕后，接着调用ctx.fireChannelRegistered() ，才会调用 B-handler）
+ */
             next.invokeChannelRegistered();
         } else {
             executor.execute(new Runnable() {
@@ -162,9 +177,18 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
     }
 
     private void invokeChannelRegistered() {
-        if (invokeHandler()) {
+        // invokeHandler() -> 判断 context里面的handler 是否执行了 handler.handlerAdd（）方法
+        if (invokeHandler()) {// 只要 执行了 register（）方法，一般都会是true
             try {
-                //  DefaultChannelPipline$HeaderContext
+                /**
+                 * 获取当前 context的 hanlder（）
+                 *  1、头尾节点的 context的 handler（）就是它本身，比如
+                 *     header-context = DefaultChannelPipline$HeaderContext
+                 *  2、其他context 的handler（）就是 各自的 handler（），比如程序员自定义的handler
+                 *
+                 *  这里就是执行 真正的Handler 的 channelRegistered（）方法，而且会一个接一个执行 pipeline链的hanlder
+                 *  （前提是 A-handler的channelRegistered（）方法执行完毕后，接着调用ctx.fireChannelRegistered()， 才会调用 B-handler）
+                  */
                 ((ChannelInboundHandler) handler()).channelRegistered(this);
             } catch (Throwable t) {
                 notifyHandlerException(t);
@@ -920,6 +944,9 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
     }
 
     private AbstractChannelHandlerContext findContextInbound(int mask) {
+        /** 获取下一个 入栈处理器
+         * 寻找当前 context（handler）在 pipeline中的下一个 inboud-context（handler）
+         */
         AbstractChannelHandlerContext ctx = this;
         do {
             ctx = ctx.next;
@@ -928,6 +955,9 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
     }
 
     private AbstractChannelHandlerContext findContextOutbound(int mask) {
+        /** 获取下一个 出栈处理器
+         * 寻找当前 context（handler）在 pipline中的下一个 Outbound-context（handler）
+         */
         AbstractChannelHandlerContext ctx = this;
         do {
             ctx = ctx.prev;
@@ -1009,6 +1039,7 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
      * but not called {@link ChannelHandler#handlerAdded(ChannelHandlerContext)}.
      */
     private boolean invokeHandler() {
+        // 判断 context里面的handler 是否执行了 handler.handlerAdd（）方法,看上面英文注释
         // Store in local variable to reduce volatile reads.
         int handlerState = this.handlerState;
         return handlerState == ADD_COMPLETE || (!ordered && handlerState == ADD_PENDING);

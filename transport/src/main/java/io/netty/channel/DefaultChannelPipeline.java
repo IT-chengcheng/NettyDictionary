@@ -910,7 +910,11 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
     @Override
     public final ChannelPipeline fireChannelRegistered() {
-        AbstractChannelHandlerContext.invokeChannelRegistered(head);
+/**
+ * 一个接一个执行 pipeline链的hanlder 的 方法 invokeChannelRegistered()
+ *  （前提是 A-handler的channelRegistered（）方法执行完毕后，接着调用ctx.fireChannelRegistered() ，才会调用 B-handler）
+ */
+         AbstractChannelHandlerContext.invokeChannelRegistered(head);
         return this;
     }
 
@@ -1361,7 +1365,9 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         }
 
         @Override
-        public void channelRegistered(ChannelHandlerContext ctx) { }
+        public void channelRegistered(ChannelHandlerContext ctx) {
+
+        }
 
         @Override
         public void channelUnregistered(ChannelHandlerContext ctx) { }

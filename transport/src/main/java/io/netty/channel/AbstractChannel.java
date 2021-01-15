@@ -532,21 +532,41 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                  */
                 pipeline.invokeHandlerAddedIfNeeded();
 
-               // promise -> DefaultChannelPromise,触发listenner 方法
+                /**
+                 * 触发 interface GenericFutureListener extends EventListener
+                 *       ->  void operationComplete(F future)
+                 * promise -> DefaultChannelPromise
+                 */
                 safeSetSuccess(promise);
-                //会执行channelRegistered
+                /**
+                 * pipeline -> DefaultChannelPipeline
+                 * 会执行channelRegistered()方法，包括netty自己的 以及 程序员自定义的
+                 * netty执行 Handler的 各种接口方时，会使用两种方式，
+                 *      1、pipeline.invoke...见上面的invokeHandlerAdd
+                 *      2、pipeline.fire... 如下方法 ：一个接一个执行 pipeline链的hanlder 的 方法 invokeChannelRegistered()
+                 *   （前提是 A-handler的channelRegistered（）方法执行完毕后，接着调用ctx.fireChannelRegistered() ，才会调用 B-handler）
+                 */
                 pipeline.fireChannelRegistered();
 
-                // 只有当通道从未被注册时，才激活该通道。这可以防止解雇
-                // 如果取消注册并重新注册通道，则多个通道将激活。
+                /**
+                 * 只有当通道从未被注册时，才激活该通道。这可以防止解雇
+                 * 如果取消注册并重新注册通道，则多个通道将激活。
+                 * isActive() 就是判断 serverSocketChannel.isOpen()
+                 */
                 if (isActive()) {
                     if (firstRegistration) {
+                        /**  如果是首次注册
+                         * 下面方法的执行流程跟上面“pipeline.fireChannelRegistered()”一模一样
+                         * 都是 执行 pipeline链中，一个接一个的执行 handler 的 fireChannelActive()方法
+                         */
                         pipeline.fireChannelActive();
                     } else if (config().isAutoRead()) {
-                        // 这个通道之前已经注册，并设置了autoRead()。这意味着我们需要开始读取
-                        // 这样我们就可以处理入站数据。
-                        //
-                        // See https://github.com/netty/netty/issues/4805
+                        /**
+                         * 这个通道之前已经注册，并设置了autoRead()。这意味着我们需要开始读取
+                         * 这样我们就可以处理入站数据。
+                         * 仅仅是 改变 selectionKey 的感兴趣的事件
+                         * See https://github.com/netty/netty/issues/4805
+                         */
                         beginRead();
                     }
                 }
@@ -871,7 +891,9 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
             if (!isActive()) {
                 return;
             }
-
+            /**
+             *  仅仅是 改变 selectionKey 的感兴趣的事件
+             */
             try {
                 doBeginRead();
             } catch (final Exception e) {
@@ -1014,6 +1036,15 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
          * Marks the specified {@code promise} as success.  If the {@code promise} is done already, log a message.
          */
         protected final void safeSetSuccess(ChannelPromise promise) {
+            /**
+             * promise ->
+             *  DefaultChannelPromise extends DefaultPromise  implements ChannelPromise
+             *                  interface ChannelPromise extends ChannelFuture extends Future
+             *          所以 DefaultChannelPromise 也是个 ChannelFuture
+             *          有属性 Channel channel = NioServerSocketChannel
+             *
+             * 重点看 promise.trySucess()
+             */
             if (!(promise instanceof VoidChannelPromise) && !promise.trySuccess()) {
                 logger.warn("Failed to mark a promise as success because it is done already: {}", promise);
             }
