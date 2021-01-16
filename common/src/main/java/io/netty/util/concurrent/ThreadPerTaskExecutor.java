@@ -33,7 +33,7 @@ public final class ThreadPerTaskExecutor implements Executor {
         this.threadFactory = threadFactory;
     }
 
-    //我们要执行开启一个线程时，只需要调用此方法传一个Runnable任务  此方法就会通过threadFactory创建一个线程去执行
+    //我们要执行开启一个线程时，只需要调用此方法传一个Runnable任务  此方法就会通过threadFactory创建一个线程去执行。
     @Override
     public void execute(Runnable command) {
         //threadFactory =  DefaultThreadFactory

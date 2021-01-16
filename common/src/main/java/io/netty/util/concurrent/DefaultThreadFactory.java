@@ -124,7 +124,7 @@ public class DefaultThreadFactory implements ThreadFactory {
     //创建一个线程
     @Override
     public Thread newThread(Runnable r) {
-        //FastThreadLocalRunnable.wrap(r)  本质还是Runnable
+        //FastThreadLocalRunnable.wrap(r)  本质还是Runnable。
         Thread t = newThread(FastThreadLocalRunnable.wrap(r), prefix + nextId.incrementAndGet());
         try {
             if (t.isDaemon() != daemon) {

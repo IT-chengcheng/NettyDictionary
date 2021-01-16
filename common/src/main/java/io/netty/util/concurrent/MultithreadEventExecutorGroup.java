@@ -84,7 +84,7 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
             /**
              * newDefaultThreadFactory() -> DefaultThreadFactory implement ThreadFactory
              * ThreadFactory  接口方法为  ->  Thread newThread(Runnable r);
-             * ThreadPerTaskExecutor 很简单，仅仅是创建线程，并且start
+             * ThreadPerTaskExecutor 很简单，仅仅是创建线程，并且start。
              */
             executor = new ThreadPerTaskExecutor(newDefaultThreadFactory());
         }

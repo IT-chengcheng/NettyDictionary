@@ -58,7 +58,7 @@ public final class ThreadExecutorMap {
             public void execute(final Runnable command) {
                 /**
                  * netty 的 NioEventLoop 真正创建线程，并且开启线程的方法2
-                 * executor ->   ThreadPerTaskExecutor 创建一个线程，并且开启线程
+                 * executor ->   ThreadPerTaskExecutor 创建一个线程，并且开启线程。
                  * eventExecutor ->  NioEventLoop extends SingleThreadEventExecutor
                  */
                 executor.execute(apply(command, eventExecutor));
@@ -85,7 +85,7 @@ public final class ThreadExecutorMap {
                     /**
                      * 能够进入外面的 run()方法，说明真正开启了线程
                      * 但是真正执行线程任务的还是外面传进来的 command.run()，但是这样调用，仅仅是一个方法调用，并没有再次开启线程
-                     * 这样相当于一个回调，回调到外面传进来的方法块
+                     * 这样相当于一个回调，回调到外面传进来的方法块.
                      */
                     command.run();
                 } finally {
