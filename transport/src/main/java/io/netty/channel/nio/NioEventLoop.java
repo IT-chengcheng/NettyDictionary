@@ -827,7 +827,9 @@ public final class NioEventLoop extends SingleThreadEventLoop {
         }
     }
 
-
+    /**
+     *  Selector.select() 触发
+     */
     private void select(boolean oldWakenUp) throws IOException {
         Selector selector = this.selector;
         try {
