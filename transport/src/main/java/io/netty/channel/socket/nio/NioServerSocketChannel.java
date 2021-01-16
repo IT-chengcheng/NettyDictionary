@@ -54,7 +54,7 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
         try {
             /**
              *  使用SelectorProvider  SocketChannel ，从而删除条件in
-             *  否则，每个ServerSocketChannel.open()将调用 SelectorProvider#provider()。
+             *  否则，每个ServerSocketChannel.open()将调用 SelectorProvider#provider()
              */
             return provider.openServerSocketChannel();
         } catch (IOException e) {
