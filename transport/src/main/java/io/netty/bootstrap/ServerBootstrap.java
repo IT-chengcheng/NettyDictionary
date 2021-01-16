@@ -212,7 +212,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
                          *        就包含这个 currentChildHandler （childHandler ），说明 ServerBootstrapAcceptor 内部就是拿到
                          *        客户端连接后，又开启pipeline，然后执行匿名内部类 currentChildHandler ，添加各种处理读写事件的handler
                          *          执行的是程序员 加的 bootstrap.childHandler(new ChannelInitializer<NioSocketChannel>() {}，
-                         *          这个内名内部类的  public void initChannel(final Channel ch)
+                         *          这个内名内部类的  public void initChannel(final Channel ch).
                          */
                         pipeline.addLast(new ServerBootstrapAcceptor(
                                 ch, currentChildGroup, currentChildHandler, currentChildOptions, currentChildAttrs));
@@ -245,7 +245,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
     private static Map.Entry<ChannelOption<?>, Object>[] newOptionArray(int size) {
         return new Map.Entry[size];
     }
-
+    // 拿到连接成功的 socket
     private static class ServerBootstrapAcceptor extends ChannelInboundHandlerAdapter {
 
         private final EventLoopGroup childGroup;
