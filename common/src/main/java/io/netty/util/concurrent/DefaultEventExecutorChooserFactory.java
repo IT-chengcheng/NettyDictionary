@@ -55,13 +55,13 @@ public final class DefaultEventExecutorChooserFactory implements EventExecutorCh
             this.executors = executors;
         }
 
-        //从executors对象数组中返回new NioEventLoop()对象
+        //从executors对象数组中返回new NioEventLoop()对象.
         @Override
         public EventExecutor next() {
 //            if(executors.length==8){
 //                System.out.println("boosGroup--------------"+(executors.length - 1));
 //            }
-            System.out.println("线程组NioEventLoopGroup中一共 "+executors.length +" 个线程执行类，"+"从group中随机选择一个线程执行类 NioEventLoop : " + (idx.getAndIncrement() & executors.length - 1));
+            System.out.println("PowerOfTwoEventExecutorChooser -> 线程组NioEventLoopGroup中一共 "+executors.length +" 个线程执行类，"+"从group中随机选择一个线程执行类 NioEventLoop : " + (idx.getAndIncrement() & executors.length - 1));
             return executors[idx.getAndIncrement() & executors.length - 1];
         }
     }
@@ -75,10 +75,10 @@ public final class DefaultEventExecutorChooserFactory implements EventExecutorCh
             this.executors = executors;
         }
 
-        //从executors对象数组中返回new NioEventLoop()对象
+        //从executors对象数组中返回new NioEventLoop()对象.
         @Override
         public EventExecutor next() {
-            System.out.println("线程组NioEventLoopGroup中一共 "+executors.length +" 个线程执行类，"+"从group中随机选择一个线程执行类 NioEventLoop : " + (idx.getAndIncrement() & executors.length - 1));
+            System.out.println("GenericEventExecutorChooser -> 线程组NioEventLoopGroup中一共 "+executors.length +" 个线程执行类，"+"从group中随机选择一个线程执行类 NioEventLoop : " + (idx.getAndIncrement() & executors.length - 1));
             return executors[Math.abs(idx.getAndIncrement() % executors.length)];
         }
     }

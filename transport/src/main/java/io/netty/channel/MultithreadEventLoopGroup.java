@@ -91,7 +91,7 @@ public abstract class MultithreadEventLoopGroup extends MultithreadEventExecutor
         /**
          * 从NioEventLoopGroup线程组executors中 根据一定算法 返回一个线程执行对象 NioEventLoop
          * bossGroup 一共 一个线程
-         * workGroup 一共 CPU核数 * 2 个线程
+         * workGroup 一共 CPU核数 * 2 个线程.
          */
         return (EventLoop) super.next();
     }
@@ -107,7 +107,7 @@ public abstract class MultithreadEventLoopGroup extends MultithreadEventExecutor
          * next()是 :
          * 从NioEventLoopGroup线程组executors中 根据一定算法 返回一个线程执行对象 NioEventLoop
          * bossGroup 一共 一个线程
-         * workGroup 一共 CPU核数 * 2 个线程
+         * workGroup 一共 CPU核数 * 2 个线程.
          */
         return next().register(channel);
     }
