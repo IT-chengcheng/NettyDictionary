@@ -512,7 +512,8 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
             // cancelled
             return promise;
         }
-
+        // tail 的 下一个 出栈处理器 就是head， head即是入栈，又是出栈
+        // 所以进入的是 head的 invokeBind（）
         final AbstractChannelHandlerContext next = findContextOutbound(MASK_BIND);
         EventExecutor executor = next.executor();
         if (executor.inEventLoop()) {
@@ -521,6 +522,11 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
             safeExecute(executor, new Runnable() {
                 @Override
                 public void run() {
+                    /**
+                     * promise    ->  PendingRegistrationPromise extends DefaultChannelPromise
+                     *                    DefaultChannelPromise extends DefaultPromise
+                     *进入的是 head的 invokeBind（）
+                     */
                     next.invokeBind(localAddress, promise);
                 }
             }, promise, null);
@@ -529,8 +535,14 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
     }
 
     private void invokeBind(SocketAddress localAddress, ChannelPromise promise) {
+        /**
+         * promise    ->  PendingRegistrationPromise extends DefaultChannelPromise
+         *                    DefaultChannelPromise extends DefaultPromise
+         */
         if (invokeHandler()) {
             try {
+                // head 的 handler就是它本身，所以：
+                // handler() -> DefaultChannelPipeline$HeadContext
                 ((ChannelOutboundHandler) handler()).bind(this, localAddress, promise);
             } catch (Throwable t) {
                 notifyOutboundHandlerException(t, promise);

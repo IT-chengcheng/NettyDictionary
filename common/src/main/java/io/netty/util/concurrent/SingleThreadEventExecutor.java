@@ -62,7 +62,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
             AtomicReferenceFieldUpdater.newUpdater(
                     SingleThreadEventExecutor.class, ThreadProperties.class, "threadProperties");
 
-    //new LinkedBlockingQueue<Runnable>(2147483647);最大开启的线程数
+    //new LinkedBlockingQueue<Runnable>(2147483647);最大等待的任务数
     private final Queue<Runnable> taskQueue;
 
     private volatile Thread thread;
@@ -158,7 +158,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
         /**
          * netty 的 NioEventLoop 真正创建线程，并且开启线程的方法1
          * this -> NioEventLoop
-         * executor ->   ThreadPerTaskExecutor 创建一个线程，并且开启线程
+         * executor ->   ThreadPerTaskExecutor 创建一个线程，并且开启线程。
          */
         this.executor = ThreadExecutorMap.apply(executor, this);
         //new LinkedBlockingQueue<Runnable>(2147483647);
@@ -775,11 +775,17 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
          * 判断 当前线程是不是正在运行的线程
          */
         boolean inEventLoop = inEventLoop();
-        //将任务加入线程队列，队列中保存正在运行的线程任务
+        /**
+         * 将任务加入线程队列，队列中保存正在运行的线程任务
+         * 这里只是将线程任务加入了队列中，暂未执行。
+         * 真正执行这些队列中的线程任务是在 NioEventLoop.run() (当然前提肯定是 开启了线程，是线程中触发的，往下看代码)
+         */
         addTask(task);
         // 正在运行的线程，不是当前线程，那就开启一个新线程
         if (!inEventLoop) {
+
             startThread();
+
             if (isShutdown()) {
                 boolean reject = false;
                 try {
@@ -934,6 +940,9 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
                 boolean success = false;
                 updateLastExecutionTime();
                 try {
+                    /**
+                     *
+                     */
                     SingleThreadEventExecutor.this.run();
                     success = true;
                 } catch (Throwable t) {

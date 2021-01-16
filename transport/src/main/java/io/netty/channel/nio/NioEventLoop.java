@@ -120,6 +120,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
      */
     private final AtomicBoolean wakenUp = new AtomicBoolean();
 
+    // selectStrategy ->  DefaultSelectStrategy
     private final SelectStrategy selectStrategy;
 
     private volatile int ioRatio = 50;
@@ -474,27 +475,31 @@ public final class NioEventLoop extends SingleThreadEventLoop {
         for (;;) {
             try {
                 try {
-                    //hasTasks()  若taskQueue or  tailTasks任务队列中有任务  返回false  没有则返回true
-//                  //有任务返回selectnow的返回值   没任务返回-1
+                    /**
+                     * selectStrategy -> DefaultSelectStrategy
+                     * selectNowSupplier 就是一个回到方法 -> selectNow()
+                     * hasTasks() ->  若taskQueue or tailTasks 队列中有任务返回true,没有则返回false
+                     * calculateStrategy()  ->
+                     *      有任务返回 selector.selectnow() 的返回值  -> 意思是不阻塞，去执行任务
+                     *      没任务返回 SelectStrategy.SELECT -> 意思执行 selector.select() 等待感兴趣的事件发生
+                     */
                     switch (selectStrategy.calculateStrategy(selectNowSupplier, hasTasks())) {
-                    case SelectStrategy.CONTINUE:
+                    case SelectStrategy.CONTINUE:// Indicates the IO loop should be retried, no blocking select to follow directly.
                         continue;
+                    case SelectStrategy.BUSY_WAIT://Indicates the IO loop to poll for new events without blocking.
+                        // fall-through(落空) to SELECT since the busy-wait is not supported with NIO
 
-                    case SelectStrategy.BUSY_WAIT:
-                        // fall-through to SELECT since the busy-wait is not supported with NIO
-
-                    case SelectStrategy.SELECT:
+                    case SelectStrategy.SELECT:// Indicates a blocking select should follow.
                         //首先轮询注册到reactor线程对应的selector上的所有的channel的IO事件
                         //wakenUp 表示是否应该唤醒正在阻塞的select操作，netty在每次进行新的loop之前，都会将wakeUp 被设置成false，标志新的一轮loop的开始
                         select(wakenUp.getAndSet(false));
 
                         // 'wakenUp.compareAndSet(false, true)' is always evaluated
                         // before calling 'selector.wakeup()' to reduce the wake-up
-                        // overhead. (Selector.wakeup() is an expensive operation.)
+                        // overhead（开支）. (Selector.wakeup() is an expensive（昂贵的） operation.)
                         //
-                        // However, there is a race condition in this approach.
-                        // The race condition is triggered when 'wakenUp' is set to
-                        // true too early.
+                        // However, there is a race condition in this approach.(用这种方法有一个竞争条件)
+                        // The race condition is triggered when 'wakenUp' is set to true too early.
                         //
                         // 'wakenUp' is set to true too early if:
                         // 1) Selector is waken up between 'wakenUp.set(false)' and
@@ -507,8 +512,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                         // Until 'wakenUp' is set to false again in the next round,
                         // 'wakenUp.compareAndSet(false, true)' will fail, and therefore
                         // any attempt to wake up the Selector will fail, too, causing
-                        // the following 'selector.select(...)' call to block
-                        // unnecessarily.
+                        // the following 'selector.select(...)' call to block unnecessarily.
                         //
                         // To fix this problem, we wake up the selector again if wakenUp
                         // is true immediately after selector.select(...).
@@ -523,7 +527,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                     default:
                     }
                 } catch (IOException e) {
-                    // If we receive an IOException here its because the Selector is messed up. Let's rebuild
+                    // If we receive an IOException here its because the Selector is messed up(混乱). Let's rebuild
                     // the selector and retry. https://github.com/netty/netty/issues/8566
                     rebuildSelector0();
                     handleLoopException(e);

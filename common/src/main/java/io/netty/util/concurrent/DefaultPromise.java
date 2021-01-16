@@ -321,6 +321,7 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
 
     @Override
     public boolean isDone() {
+        // result 属性在哪改变？ 在 register() -> safeSetSuccess(promise);
         return isDone0(result);
     }
 

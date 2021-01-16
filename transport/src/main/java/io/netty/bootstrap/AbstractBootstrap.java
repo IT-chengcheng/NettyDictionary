@@ -395,13 +395,20 @@ public abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C ext
             final ChannelFuture regFuture, final Channel channel,
             final SocketAddress localAddress, final ChannelPromise promise) {
 
-        // 在触发channelregister()之前调用此方法。给用户处理程序设置的机会
-        // 管道在其channelRegistered()实现中。
-        //这些任务最终被事件轮询线程同步调用
+        /**
+         * 在触发channelregister()之前调用此方法。给用户处理程序设置的机会
+         * 管道在其channelRegistered()实现中。
+         * 这些任务最终被事件轮询线程同步调用
+         */
         channel.eventLoop().execute(new Runnable() {
             @Override
             public void run() {
                 if (regFuture.isSuccess()) {
+                    /**
+                     * channel    ->  NioServerSocketChannel
+                     * promise    ->  PendingRegistrationPromise extends DefaultChannelPromise
+                     *                    DefaultChannelPromise extends DefaultPromise
+                     */
                     channel.bind(localAddress, promise).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
                 } else {
                     promise.setFailure(regFuture.cause());

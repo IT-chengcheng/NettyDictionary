@@ -249,6 +249,10 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
 
     @Override
     public ChannelFuture bind(SocketAddress localAddress, ChannelPromise promise) {
+        /**
+         * * promise    ->  PendingRegistrationPromise extends DefaultChannelPromise
+         *                    DefaultChannelPromise extends DefaultPromise
+         */
         return pipeline.bind(localAddress, promise);
     }
 
@@ -599,6 +603,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                         "address (" + localAddress + ") anyway as requested.");
             }
 
+            // 就是判断 ServerSocketChannel.isOpen(),但是返回是false，没太懂这里为啥是false
             boolean wasActive = isActive();
             try {
                 // 调用的是 NioServerSocketChannel绑定方法
@@ -614,11 +619,12 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                 invokeLater(new Runnable() {
                     @Override
                     public void run() {
+                        // 只要是 pipeline.fire（..），就是 执行 pipeline 的 链 ，一个接一个执行
                         pipeline.fireChannelActive();
                     }
                 });
             }
-
+           // 回调 listener  -> onComplete（）
             safeSetSuccess(promise);
         }
 

@@ -1075,6 +1075,11 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
     @Override
     public final ChannelFuture bind(SocketAddress localAddress, ChannelPromise promise) {
+        /**
+         * promise    ->  PendingRegistrationPromise extends DefaultChannelPromise
+         *                    DefaultChannelPromise extends DefaultPromise
+         * AbstractChannelHandlerContext tail =  new TailContext(pipeline);
+         */
         return tail.bind(localAddress, promise);
     }
 
@@ -1446,6 +1451,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         @Override
         public void bind(
                 ChannelHandlerContext ctx, SocketAddress localAddress, ChannelPromise promise) {
+            // unsafe -> AbstractNioMessageChannel.NioMessageUnsafe
             unsafe.bind(localAddress, promise);
         }
 
