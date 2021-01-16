@@ -477,7 +477,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                 try {
                     /**
                      * selectStrategy -> DefaultSelectStrategy
-                     * selectNowSupplier 就是一个回到方法 -> selectNow()
+                     * selectNowSupplier 就是一个回调方法 -> selectNow()
                      * hasTasks() ->  若taskQueue or tailTasks 队列中有任务返回true,没有则返回false
                      * calculateStrategy()  ->
                      *      有任务返回 selector.selectnow() 的返回值  -> 意思是不阻塞，去执行任务
@@ -854,7 +854,8 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                 // If we don't, the task might be pended until select operation was timed out.
                 // It might be pended until idle timeout if IdleStateHandler existed in pipeline.
 
-                // 2.轮询过程中发现有任务加入，中断本次轮询 netty为了保证任务队列能够及时执行，在进行阻塞select操作之前会判断任务队列是否为空，如果不为空，就执行一次非阻塞select操作，跳出循环
+                // 2.轮询过程中发现有任务加入，中断本次轮询 netty为了保证任务队列能够及时执行，
+                // 在进行阻塞select操作之前会判断任务队列是否为空，如果不为空，就执行一次非阻塞select操作，跳出循环
                 //hasTasks() && wakenUp.compareAndSet(false, true)  如果队列中有任务  则设置wakenUp为true  并返回true
                 if (hasTasks() && wakenUp.compareAndSet(false, true)) {
                     selector.selectNow();
@@ -899,7 +900,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                 } else if (SELECTOR_AUTO_REBUILD_THRESHOLD > 0 &&
                         selectCnt >= SELECTOR_AUTO_REBUILD_THRESHOLD) {
                     //如果selectCnt>=512就重新创建新的selector并替换
-                    //创建新的selector
+                    //重建 Selector
                     selector = selectRebuildSelector(selectCnt);
                     selectCnt = 1;
                     break;
