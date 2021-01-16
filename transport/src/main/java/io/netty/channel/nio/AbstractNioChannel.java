@@ -50,9 +50,11 @@ public abstract class AbstractNioChannel extends AbstractChannel {
     private static final InternalLogger logger =
             InternalLoggerFactory.getInstance(AbstractNioChannel.class);
 
-    // java-nio 原生 ServerSocketChannel
+    // java-nio 原生 ServerSocketChannel  或者 SocketChannel
     private final SelectableChannel ch;
-    /**readInterestOp 在 初始化 NioServerSocketChannel时，赋值 为  SelectionKey.OP_ACCEPT
+    /**两种情况
+     * 1、readInterestOp 在 初始化 NioServerSocketChannel时，赋值 为  SelectionKey.OP_ACCEPT
+     * 2、readInterestOp 在 初始化 NioSocketChannel时，赋值 为  SelectionKey.OP_READ
      * OP_READ = 1 << 0;      0001
      * OP_WRITE = 1 << 2;     0100
      * OP_CONNECT = 1 << 3;   1000
@@ -85,10 +87,16 @@ public abstract class AbstractNioChannel extends AbstractChannel {
      * @param readInterestOp    the ops to set to receive data from the {@link SelectableChannel}
      */
     protected AbstractNioChannel(Channel parent, SelectableChannel ch, int readInterestOp) {
-        /**
+        /** 分两种情况，两个子类
+         * 1、NioServerSocketChannel extends AbstractNioMessageChannel extends AbstractNioChannel
          *  parent -->  null
-         *  h     --> serverSocketChannel  服务端channel
+         *  ch     --> ServerSocketChannel  服务端channel
          *  readInterestOp  ->SelectionKey.OP_ACCEPT
+         *
+         * 2、NioSocketChannel extends AbstractNioByteChannel extends AbstractNioChannel
+         *  parent -->  NioServerSocketChannel
+         *  ch    --> SocketChannel  服务端channel
+         *  readInterestOp  ->SelectionKey.OP_READ
          */
         //调用父类  -> 创建id，unsafe pipeline
         super(parent);

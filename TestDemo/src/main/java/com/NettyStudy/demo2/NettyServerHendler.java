@@ -17,7 +17,7 @@ public class NettyServerHendler extends ChannelInboundHandlerAdapter{
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 //        System.out.println("服务端上下文对象"+ctx);
         String byteBuf= (String) msg;
-        System.out.println("客户端发来消息:"+byteBuf);
+        System.out.println("客户端发来消息:"+byteBuf + " 当前线程ID: "+ Thread.currentThread().getId());
 //        ctx.fireChannelRead(msg);
         ctx.writeAndFlush(Unpooled.copiedBuffer("同好"+System.getProperty("line.separator"),CharsetUtil.UTF_8));
 //        System.out.println(++count);
@@ -26,7 +26,7 @@ public class NettyServerHendler extends ChannelInboundHandlerAdapter{
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("Netty Server channelRegistered");
+       // System.out.println("Netty Server channelRegistered");
         ctx.fireChannelRegistered();
     }
 

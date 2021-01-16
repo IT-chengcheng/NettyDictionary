@@ -30,7 +30,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class MultithreadEventExecutorGroup extends AbstractEventExecutorGroup {
 
-    // 存放 nThreads 个 NioEventLoop 实例
+    /**
+     * children -> 存放 nThreads 个 NioEventLoop 实例
+     *  bossGroup ：nThreads = 1
+     *  workGrop  ：nThreads = 16
+     */
     private final EventExecutor[] children;
 
     private final Set<EventExecutor> readonlyChildren;
@@ -163,7 +167,9 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
     public EventExecutor next() {
         /**
          * chooser=GenericEventExecutorChooser/PowerOfTwoEventExecutorChooser
-         * 从executors对象数组中 根据一定算法 返回new NioEventLoop()对象
+         * 从NioEventLoopGroup线程组executors中 根据一定算法 返回一个线程执行对象 NioEventLoop
+         * bossGroup 一共 一个线程
+         * workGroup 一共 CPU核数 * 2 个线程
          */
         return chooser.next();
     }

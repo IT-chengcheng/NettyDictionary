@@ -65,7 +65,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     final AbstractChannelHandlerContext head;
     final AbstractChannelHandlerContext tail;
 
-    // channel -> NioServerSocketChannel
+    // channel -> NioServerSocketChannel 或者 NioSocketChannel
     private final Channel channel;
     private final ChannelFuture succeededFuture;
     private final VoidChannelPromise voidPromise;
@@ -94,7 +94,13 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     private boolean registered;
 
     protected DefaultChannelPipeline(Channel channel) {
-        // channel -> NioServerSocketChannel
+        /**
+         * 用来接收客户端连接的
+         * 1、channel = NioServerSocketChannel extends AbstractNioMessageChannel extends AbstractNioChannel
+         *
+         * 2、 接收到客户端连接后，创建的
+         * channel = NioSocketChannel extends AbstractNioByteChannel extends AbstractNioChannel
+         */
         this.channel = ObjectUtil.checkNotNull(channel, "channel");
         succeededFuture = new SucceededChannelFuture(channel, null);
         voidPromise =  new VoidChannelPromise(channel, true);
@@ -238,6 +244,11 @@ public class DefaultChannelPipeline implements ChannelPipeline {
              * abstract  ChannelInitializer<Channel> 这是个特殊的handler,一般 netty 创建的 ChannelInitializer都是一个匿名内部类 ->
              *                                                  （见 -> ServerBootStrap -> init(Channel channel)）
              * 程序员创建的可以是个匿名内部类，也可以创建一个它的子类。
+             *
+             * 这个特殊的hanlder-ChannelInitializer也会加到pipeline的一个节点中，但是在register（）方法中，执行到 handlerAdd（）方法时，
+             * ChannelInitializer实际执行的是它的 initChannel（）方法,也就是真正添加handler，执行完 handlerAdd（）->initChannel（）
+             * ChannelInitializer这个特殊的handler会从pipeline中移除
+             *
              * newCtx = new DefaultChannelHandlerContext()
              * 由此可见 pipeline 这条链，每一个节点是个 AbstractChannelHandlerContext
              */
@@ -245,7 +256,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
             /**
              * 将这个 DefaultChannelHandlerContext 添加到pipeline中
-             * 此时本类（DefaultChannelPipeline）处理线 head -> DefaultChannelHandlerContext -> tail
+             * 此时本类（DefaultChannelPipeline）处理链 head -> DefaultChannelHandlerContext -> tail
              * 这三个类都继承  AbstractChannelHandlerContext
              * 注意netty的加入pipeline，并不是加入到数组或者集合中，不像spring那样，netty是链状结构，跟链表差不多
              */
@@ -281,7 +292,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         /**
          * newCtx=new DefaultChannelHandlerContext()
          * 仔细看方法名 是 addLast，然后看代码，是将这个handler放到了 tail 的前面，也就是倒数第二的位置
-         * 每次新家一个handler 都是这样的，放在倒数第二的问题
+         * 每次新家一个handler 都是这样的，放在倒数第二的位置
          */
         AbstractChannelHandlerContext prev = tail.prev;
         newCtx.prev = prev;
@@ -439,8 +450,6 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
     @Override
     public final ChannelPipeline addLast(EventExecutorGroup executor, ChannelHandler... handlers) {
-
-        // 从 NioServerSocketChannel 取出 DefaultChannelPiepeline 执行这个方法
 
         if (handlers == null) {
             throw new NullPointerException("handlers");

@@ -32,6 +32,13 @@ final class SelectedSelectionKeySet extends AbstractSet<SelectionKey> {
 
     @Override
     public boolean add(SelectionKey o) {
+        /**
+         *  不但重写了 selectionKey集合，还重写AbstractSet“add()”方法，通过重写 这个方法，往自定义的数组里添加 发生的事件
+         *  注意！！！： 是JDK调用的这个方法，确切的说是：
+         *   windows系统： WindowsSelectorImpl.this.selectedKeys.add()
+         *   linux 系统： EPollSelectorImpl.this.selectedKeys.add()
+         *   触发调用的是： selector.selector()
+         */
         if (o == null) {
             return false;
         }

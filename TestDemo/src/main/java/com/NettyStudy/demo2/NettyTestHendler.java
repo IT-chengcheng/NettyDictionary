@@ -14,7 +14,7 @@ public class NettyTestHendler extends ChannelInboundHandlerAdapter{
     //通道准备就绪事件
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("NettyTestHendler channelActive-----"+ctx);
+        //System.out.println("NettyTestHendler channelActive-----"+ctx);
     }
 
     //读取数据事件
@@ -39,7 +39,7 @@ public class NettyTestHendler extends ChannelInboundHandlerAdapter{
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         // ctx 传入的是 该对象 本身
         ctx.fireChannelRegistered();
-        System.out.println("NettyTestHendler channelRegistered");
+        //System.out.println("NettyTestHendler channelRegistered");
     }
 
 }

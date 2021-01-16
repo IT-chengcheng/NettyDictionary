@@ -586,7 +586,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
     }
 
     private void processSelectedKeys() {
-        if (selectedKeys != null) {
+        if (selectedKeys != null) {// selectedKeys在初始化 NioEventLoop时，就已经赋值了，并且是 netty自定义的类
             processSelectedKeysOptimized();
         } else {
             processSelectedKeysPlain(selector.selectedKeys());
@@ -661,13 +661,18 @@ public final class NioEventLoop extends SingleThreadEventLoop {
     }
 
     private void processSelectedKeysOptimized() {
+        /**
+         * selectedKeys.size 的赋值渠道？ 在 SelectedSelectionKeySet 类的 add()方法里，点入这个类看看注释！！
+          */
+
         for (int i = 0; i < selectedKeys.size; ++i) {
             final SelectionKey k = selectedKeys.keys[i];
 
             // null out entry in the array to allow to have it GC'ed once the Channel close
             // See https://github.com/netty/netty/issues/2363
             selectedKeys.keys[i] = null;
-
+            // attachment何时加入:  AbstractNioChannel的regsiter() ->
+            // selectionKey = javaChannel().register(eventLoop().unwrappedSelector(), 0, this);
             final Object a = k.attachment();
 
             if (a instanceof AbstractNioChannel) {

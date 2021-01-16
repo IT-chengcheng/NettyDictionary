@@ -15,6 +15,7 @@
  */
 package io.netty.channel;
 
+import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.RejectedExecutionHandler;
 import io.netty.util.concurrent.RejectedExecutionHandlers;
 import io.netty.util.concurrent.SingleThreadEventExecutor;

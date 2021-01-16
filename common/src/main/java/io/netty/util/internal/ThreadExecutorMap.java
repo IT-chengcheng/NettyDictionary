@@ -87,6 +87,7 @@ public final class ThreadExecutorMap {
                      * 但是真正执行线程任务的还是外面传进来的 command.run()，但是这样调用，仅仅是一个方法调用，并没有再次开启线程
                      * 这样相当于一个回调，回调到外面传进来的方法块.
                      */
+                    System.out.println("#### 开启了一个线程，当前线程 ID:"+Thread.currentThread().getId() + "   线程名字: " + Thread.currentThread().getName());
                     command.run();
                 } finally {
                     /**

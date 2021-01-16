@@ -70,10 +70,22 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
      *        the parent of this channel. {@code null} if there's no parent.
      */
     protected AbstractChannel(Channel parent) {
-        //new ServerSocketChannel
+        /** 分两种情况，两个子类
+         * 1、NioServerSocketChannel extends AbstractNioMessageChannel extends AbstractNioChannel
+         *  parent -->  null
+         *
+         * 2、NioSocketChannel extends AbstractNioByteChannel extends AbstractNioChannel
+         *  parent -->  NioServerSocketChannel
+         */
         this.parent = parent;
         id = newId();
-        // 进入子类 AbstractNioMessageChannel  -> newUnsafe() -> unsafe = NioMessageUnsafe
+        /** 分两种情况，两个子类
+         * 1、NioServerSocketChannel extends AbstractNioMessageChannel extends AbstractNioChannel
+         *  unsafe = NioMessageUnsafe
+         *
+         * 2、NioSocketChannel extends AbstractNioByteChannel extends AbstractNioChannel
+         *  unsafe = NioByteUnsafe
+         */
         unsafe = newUnsafe();
         pipeline = newChannelPipeline();
     }
@@ -494,7 +506,9 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                     eventLoop.execute(new Runnable() {
                         @Override
                         public void run() {
-                            System.out.println("开始执行注册操作 ");
+                            /**
+                             * 开始执行注册操作
+                             */
                             register0(promise);
                         }
                     });
@@ -532,6 +546,8 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                 // 用户可能已经通过ChannelFutureListener中的管道触发事件。
                 /**
                  * 开始回调DefaultChannelPipeline线程链中的任务了，也就是执行pipeline中 一个个 handler 的 handlerAdded（)方法
+                 *        《对于 ChannelInitializer 这个特殊handler 执行 handlerAdded（)，就是执行 initChannel（）方法，也就是》
+                 *        《真正添加handler的操作》
                  * 线程链中的任务 是在哪添加的？ 是在bootStrap的 init（）方法中的 pipeline.addlast(channel)
                  */
                 pipeline.invokeHandlerAddedIfNeeded();

@@ -248,8 +248,8 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
     // 拿到连接成功的 socket
     private static class ServerBootstrapAcceptor extends ChannelInboundHandlerAdapter {
 
-        private final EventLoopGroup childGroup;
-        private final ChannelHandler childHandler;
+        private final EventLoopGroup childGroup;// 见构造方法解释
+        private final ChannelHandler childHandler;// 见构造方法解释
         private final Entry<ChannelOption<?>, Object>[] childOptions;
         private final Entry<AttributeKey<?>, Object>[] childAttrs;
         private final Runnable enableAutoReadTask;
@@ -259,9 +259,16 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
                 Entry<ChannelOption<?>, Object>[] childOptions, Entry<AttributeKey<?>, Object>[] childAttrs) {
 
             // channel -> NioServerSocketChannel
-            // childGroup处理客户端连接的 线程组
+
+            /**
+             * childGroup 处理客户端连接的 线程组,里面有个属性，就是线程组数组 ：
+             *       EventExecutor[] children -> 存放 nThreads 个 NioEventLoop 实例。
+             *        bossGroup ：nThreads = 1；
+             *        workGrop  ：nThreads = 16
+             * 这里肯定是 workGrop ！！！，也就是有16个NioEventLoop，实际数字= CPU核数 * 2
+             */
             this.childGroup = childGroup;
-            //自定义的ChannelInitializer
+            //自定义的ChannelInitializer，这是个特殊的handler，专门用来添加真正的handler，添加完后，将此特殊hanlder从pipeline中移除
             this.childHandler = childHandler;
             this.childOptions = childOptions;
             this.childAttrs = childAttrs;
@@ -284,7 +291,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
         @SuppressWarnings("unchecked")
         public void channelRead(ChannelHandlerContext ctx, Object msg) {
             final Channel child = (Channel) msg;
-
+            // 此时的 msg 一定是 NioSocketChannel
             child.pipeline().addLast(childHandler);
 
             setChannelOptions(child, childOptions, logger);
