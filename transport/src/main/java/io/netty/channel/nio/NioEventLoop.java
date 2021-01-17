@@ -756,7 +756,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                 /**
                  * 看英文注释。 这里是
                  * bossGroup  -> NioSocketServerChannel  处理 连接时间
-                 * workGroup  -> NioSocketChannel 处理读事件
+                 * workGroup  -> NioSocketChannel 处理读事件.
                  */
                 unsafe.read();
             }

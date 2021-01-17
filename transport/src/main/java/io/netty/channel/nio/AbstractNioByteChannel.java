@@ -94,6 +94,7 @@ public abstract class AbstractNioByteChannel extends AbstractNioChannel {
                 ((SocketChannelConfig) config).isAllowHalfClosure();
     }
 
+    // NioSocketChannel 的属性Unsafe unsafe 的值 就是这个类
     protected class NioByteUnsafe extends AbstractNioUnsafe {
 
         private void closeOnRead(ChannelPipeline pipeline) {
@@ -130,6 +131,9 @@ public abstract class AbstractNioByteChannel extends AbstractNioChannel {
 
         @Override
         public final void read() {
+            /**
+             *  处理读事件，获取到 客户端发来的消息后，交给 pipeline 去处理
+             */
             final ChannelConfig config = config();
             if (shouldBreakReadReady(config)) {
                 clearReadPending();
@@ -145,7 +149,9 @@ public abstract class AbstractNioByteChannel extends AbstractNioChannel {
             try {
                 do {
                     byteBuf = allocHandle.allocate(allocator);
-                    // 读取客户端消息 到 buffer
+                    /**
+                     * 读取客户端消息 到 buffer
+                     */
                     allocHandle.lastBytesRead(doReadBytes(byteBuf));
                     if (allocHandle.lastBytesRead() <= 0) {
                         // nothing was read. release the buffer.
@@ -161,6 +167,10 @@ public abstract class AbstractNioByteChannel extends AbstractNioChannel {
 
                     allocHandle.incMessagesRead(1);
                     readPending = false;
+                    /**
+                     * 拿到 客户端发来的消息后，开始通过pipeline处理
+                     * 注意此时：还是原始的数据，并没有经过解码，以及拆包，需要pipeline中的hanldler一步步处理
+                     */
                     pipeline.fireChannelRead(byteBuf);
                     byteBuf = null;
                 } while (allocHandle.continueReading());
