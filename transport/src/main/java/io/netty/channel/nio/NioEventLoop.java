@@ -586,7 +586,8 @@ public final class NioEventLoop extends SingleThreadEventLoop {
     }
 
     private void processSelectedKeys() {
-        if (selectedKeys != null) {// selectedKeys在初始化 NioEventLoop时，就已经赋值了，并且是 netty自定义的类
+        if (selectedKeys != null) {
+            // selectedKeys在初始化 NioEventLoop时 就已经赋值了，并且是 netty自定义的类，所以肯定不为空
             processSelectedKeysOptimized();
         } else {
             processSelectedKeysPlain(selector.selectedKeys());
@@ -664,15 +665,17 @@ public final class NioEventLoop extends SingleThreadEventLoop {
         /**
          * selectedKeys.size 的赋值渠道？ 在 SelectedSelectionKeySet 类的 add()方法里，点入这个类看看注释！！
           */
-
         for (int i = 0; i < selectedKeys.size; ++i) {
             final SelectionKey k = selectedKeys.keys[i];
 
             // null out entry in the array to allow to have it GC'ed once the Channel close
             // See https://github.com/netty/netty/issues/2363
             selectedKeys.keys[i] = null;
-            // attachment何时加入:  AbstractNioChannel的regsiter() ->
-            // selectionKey = javaChannel().register(eventLoop().unwrappedSelector(), 0, this);
+            /**
+             * attachment何时加入:  AbstractNioChannel的regsiter() ->
+             * selectionKey = javaChannel().register(eventLoop().unwrappedSelector(), 0, this);
+             * a = NioServerSocketChannel 或者  NioSocketChannel
+             */
             final Object a = k.attachment();
 
             if (a instanceof AbstractNioChannel) {
@@ -695,6 +698,8 @@ public final class NioEventLoop extends SingleThreadEventLoop {
     }
 
     private void processSelectedKey(SelectionKey k, AbstractNioChannel ch) {
+        // a = NioServerSocketChannel  ;  unsafe =  NioMessageUnsafe
+        // a=  NioSocketChannel   ;    unsafe =  NioByteUnsafe
         final AbstractNioChannel.NioUnsafe unsafe = ch.unsafe();
         // k.isValid()告知此键是否有效。
         if (!k.isValid()) {
@@ -741,7 +746,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                 ch.unsafe().forceFlush();
             }
 
-            // Also check for readOps of 0 to workaround possible JDK bug which may otherwise lead
+            // Also check for readOps of 0 to workaround 应变方法；变通方法，替代方法 possible JDK bug which may otherwise lead
             // to a spin loop
             if ((readyOps & (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != 0 || readyOps == 0) {
                 unsafe.read();
