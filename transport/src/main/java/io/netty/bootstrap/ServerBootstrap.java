@@ -245,7 +245,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
     private static Map.Entry<ChannelOption<?>, Object>[] newOptionArray(int size) {
         return new Map.Entry[size];
     }
-    // 拿到连接成功的 socket
+    // 拿到连接成功的 socket，开启 workGroup
     private static class ServerBootstrapAcceptor extends ChannelInboundHandlerAdapter {
 
         private final EventLoopGroup childGroup;// 见构造方法解释
@@ -290,6 +290,9 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
         @Override
         @SuppressWarnings("unchecked")
         public void channelRead(ChannelHandlerContext ctx, Object msg) {
+            /**
+             * 这个方法就是 开启 workGroup！！！！ 注册读写事件，处理读写事件！！！
+             */
             final Channel child = (Channel) msg;
             // 此时的 msg 一定是 NioSocketChannel
             child.pipeline().addLast(childHandler);

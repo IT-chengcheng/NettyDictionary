@@ -62,10 +62,14 @@ public abstract class AbstractNioMessageChannel extends AbstractNioChannel {
    // NioServerSocketChannel 的属性Unsafe unsafe 的值 就是这个类
     private final class NioMessageUnsafe extends AbstractNioUnsafe {
 
+        // 存放 NioSocketChannel
         private final List<Object> readBuf = new ArrayList<Object>();
 
         @Override
         public void read() {
+            /**
+             * 处理客户端连接的 中转站
+             */
             assert eventLoop().inEventLoop();
             final ChannelConfig config = config();
             final ChannelPipeline pipeline = pipeline();
@@ -77,6 +81,8 @@ public abstract class AbstractNioMessageChannel extends AbstractNioChannel {
             try {
                 try {
                     do {
+                        // 接收客户端连接 socketChannel = SocketServerChannel.accept（），
+                        // 并且 new NioSocketChannel( socketChannel ),将对象放到  readBuf
                         int localRead = doReadMessages(readBuf);
                         if (localRead == 0) {
                             break;
@@ -85,7 +91,7 @@ public abstract class AbstractNioMessageChannel extends AbstractNioChannel {
                             closed = true;
                             break;
                         }
-
+                        // 当前线程接收到 socket连接数 + 1
                         allocHandle.incMessagesRead(localRead);
                     } while (allocHandle.continueReading());
                 } catch (Throwable t) {
@@ -95,10 +101,16 @@ public abstract class AbstractNioMessageChannel extends AbstractNioChannel {
                 int size = readBuf.size();
                 for (int i = 0; i < size; i ++) {
                     readPending = false;
+                    /**
+                     *  取出NioSocketChannel，通过pipele 转接给下一个 handler，
+                     *  最终给到 ServerBootstrapAcceptor extends ChannelInboundHandlerAdapter
+                     *  在 ServerBootstrapAcceptor 开启 workGroup ，注册读写事件
+                     */
                     pipeline.fireChannelRead(readBuf.get(i));
                 }
                 readBuf.clear();
                 allocHandle.readComplete();
+                // 这个方法 目前看来，没有核心东西
                 pipeline.fireChannelReadComplete();
 
                 if (exception != null) {

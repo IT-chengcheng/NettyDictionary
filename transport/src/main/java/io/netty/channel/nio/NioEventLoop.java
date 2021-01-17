@@ -743,12 +743,21 @@ public final class NioEventLoop extends SingleThreadEventLoop {
             // Process OP_WRITE first as we may be able to write some queued buffers and so free memory.
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                 // Call forceFlush which will also take care of clear the OP_WRITE once there is nothing left to write
+                /**
+                 * 看英文注释。 这里是
+                 * workGroup  -> NioSocketChannel 处理写事件
+                 */
                 ch.unsafe().forceFlush();
             }
 
             // Also check for readOps of 0 to workaround 应变方法；变通方法，替代方法 possible JDK bug which may otherwise lead
             // to a spin loop
             if ((readyOps & (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != 0 || readyOps == 0) {
+                /**
+                 * 看英文注释。 这里是
+                 * bossGroup  -> NioSocketServerChannel  处理 连接时间
+                 * workGroup  -> NioSocketChannel 处理读事件
+                 */
                 unsafe.read();
             }
         } catch (CancelledKeyException ignored) {
