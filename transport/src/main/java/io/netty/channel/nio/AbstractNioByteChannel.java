@@ -169,7 +169,7 @@ public abstract class AbstractNioByteChannel extends AbstractNioChannel {
                     readPending = false;
                     /**
                      * 拿到 客户端发来的消息后，开始通过pipeline处理
-                     * 注意此时：还是原始的数据，并没有经过解码，以及拆包，需要pipeline中的hanldler一步步处理
+                     * 注意此时：还是原始的数据，并没有经过解码，以及拆包，需要pipeline中的hanldler一步步处理.
                      */
                     pipeline.fireChannelRead(byteBuf);
                     byteBuf = null;

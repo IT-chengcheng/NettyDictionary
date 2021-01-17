@@ -51,6 +51,12 @@ import java.util.List;
  * }
  * </pre>
  */
+
+/**
+ * 解码器之一
+ * 1、首先看上面英文注释！！
+ * 2、
+ */
 @Sharable
 public class StringDecoder extends MessageToMessageDecoder<ByteBuf> {
 
