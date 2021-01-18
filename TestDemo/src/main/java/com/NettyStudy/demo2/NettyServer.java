@@ -9,6 +9,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 
 
 //服务端
@@ -37,7 +38,10 @@ public class NettyServer {
         .childHandler(new ChannelInitializer<NioSocketChannel>() {
             @Override
             protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
-                nioSocketChannel.pipeline().addLast(new StringDecoder(),new NettyServerHendler());
+                nioSocketChannel.pipeline().addLast(
+                        new StringDecoder(),
+                        new NettyCustomWorkServerHandler(),
+                        new StringEncoder());
             }
         });
         System.out.println(".........server  init..........");

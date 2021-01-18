@@ -1499,6 +1499,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
         @Override
         public void flush(ChannelHandlerContext ctx) {
+            // 真正给客户端 响应 数据
             unsafe.flush();
         }
 

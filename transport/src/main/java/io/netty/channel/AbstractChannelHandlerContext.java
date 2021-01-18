@@ -107,6 +107,13 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
         this.pipeline = pipeline;
         this.executor = executor;
         this.executionMask = mask(handlerClass);
+        /**
+         * 上面这个 executionMask也很重要，每一种 context（handler）都有自己的一个专属 executionMask
+         * 用来寻找 当前 context（handler）下一个 入栈处理器
+         * 或者 寻找 当前 context（handler）上一个 出栈处理器
+         */
+       // System.out.println(this.getClass().getSimpleName()+ " # "+handlerClass.getSimpleName()+"# executionMask: "+ this.executionMask);
+
         // Its ordered if its driven by the EventLoop or the given Executor is an instanceof OrderedEventExecutor.
         ordered = executor == null || executor instanceof OrderedEventExecutor;
     }
@@ -789,6 +796,7 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
 
     private void invokeFlush0() {
         try {
+            // 真正给客户端 响应 数据
             ((ChannelOutboundHandler) handler()).flush(this);
         } catch (Throwable t) {
             notifyHandlerException(t);
@@ -852,6 +860,7 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
 
     @Override
     public ChannelFuture writeAndFlush(Object msg) {
+        // 直接执行 最后一个出栈处理器 -> head。也就是不执行 pipeline 链中 的 尾 -> 头
         return writeAndFlush(msg, newPromise());
     }
 
@@ -962,19 +971,34 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
         AbstractChannelHandlerContext ctx = this;
         do {
             ctx = ctx.next;
+            // 通过位运算，高效的找出 下一个 入栈处理器
         } while ((ctx.executionMask & mask) == 0);
         return ctx;
     }
 
     private AbstractChannelHandlerContext findContextOutbound(int mask) {
-        /** 获取下一个 出栈处理器
-         * 寻找当前 context（handler）在 pipline中的下一个 Outbound-context（handler）
+        /** 获取上一个 出栈处理器
+         * 寻找当前 context（handler）在 pipline中的上一个 Outbound-context（handler）
          */
         AbstractChannelHandlerContext ctx = this;
         do {
             ctx = ctx.prev;
+            // 通过位运算，高效的找出 上一个 出栈处理器
         } while ((ctx.executionMask & mask) == 0);
         return ctx;
+        /**
+         * pipeline 结构： ** 入栈处理器； && 代表出栈处理器
+         *
+         * head  **1  **2  &&1  &&2  **3  **4  &&3 tail    入栈、出栈 各自有序
+         *
+         * head 即是 ** 又是 &&
+         * 如果当前 this == **3 ，在 channelRead（）中执行了
+         * 1、ctx.writeAndFlush(...) 直接从当前所在位置往前寻找出栈处理器 进行传播  ->
+         *       &&2 -> &&1 -> head
+         *
+         * 2、ctx.channel().writeAndFlush（...）会从尾节点开始，往前寻找出栈处理器 进行传播  ->
+         *      &&3 -> &&2 -> &&1 -> head
+         */
     }
 
     @Override

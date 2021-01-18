@@ -755,7 +755,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
             if ((readyOps & (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != 0 || readyOps == 0) {
                 /**
                  * 看英文注释。 这里是
-                 * bossGroup  -> NioSocketServerChannel  处理 连接时间
+                 * bossGroup  -> NioSocketServerChannel  处理 连接事件 + 断开连接事件
                  * workGroup  -> NioSocketChannel 处理读事件.
                  */
                 unsafe.read();

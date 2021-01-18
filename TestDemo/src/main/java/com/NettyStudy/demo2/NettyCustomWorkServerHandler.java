@@ -7,7 +7,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.CharsetUtil;
 
 //服务器端的业务逻辑处理类
-public class NettyServerHendler extends ChannelInboundHandlerAdapter{
+public class NettyCustomWorkServerHandler extends ChannelInboundHandlerAdapter{
 
 
     private int count=0;
@@ -20,6 +20,7 @@ public class NettyServerHendler extends ChannelInboundHandlerAdapter{
         System.out.println("客户端发来消息:"+byteBuf + " 当前线程ID: "+ Thread.currentThread().getId());
 //        ctx.fireChannelRead(msg);
         ctx.writeAndFlush(Unpooled.copiedBuffer("同好"+System.getProperty("line.separator"),CharsetUtil.UTF_8));
+         ctx.channel().writeAndFlush("abc");
 //        System.out.println(++count);
     }
 

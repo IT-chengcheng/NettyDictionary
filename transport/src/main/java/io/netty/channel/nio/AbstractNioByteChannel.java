@@ -176,6 +176,13 @@ public abstract class AbstractNioByteChannel extends AbstractNioChannel {
                 } while (allocHandle.continueReading());
 
                 allocHandle.readComplete();
+                /**
+                 * 读取数据完毕，执行pipeline 调用链，读取完毕指的是：
+                 * pipeline链中 所有handler的  channelRead() 都已执行完毕（包括程序员自定义的），
+                 * 而且 通常情况下 ，也会在程序员 自定义的handler的  channelRead()方法中 进行响应客户端操作
+                 * 也就是 发送结果给客户端。
+                 * 最后再执行 下面这个调用链
+                 */
                 pipeline.fireChannelReadComplete();
 
                 if (close) {

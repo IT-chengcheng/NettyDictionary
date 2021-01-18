@@ -933,6 +933,11 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
         public final void write(Object msg, ChannelPromise promise) {
             assertEventLoop();
 
+            /**
+             *  往客户端发送数据
+             *  但是这里只是将要发送的数据放到了缓冲区，没有真正的发送
+             *  执行 flush（）的时候，才真正的往客户端发送数据
+             */
             ChannelOutboundBuffer outboundBuffer = this.outboundBuffer;
             if (outboundBuffer == null) {
                 // If the outboundBuffer is null we know the channel was closed and so
@@ -964,7 +969,9 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
         @Override
         public final void flush() {
             assertEventLoop();
-
+/**
+ * 真正给客户端 响应 数据
+ */
             ChannelOutboundBuffer outboundBuffer = this.outboundBuffer;
             if (outboundBuffer == null) {
                 return;
@@ -980,6 +987,9 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                 // Avoid re-entrance
                 return;
             }
+            /**
+             * 真正给客户端 响应 数据
+             */
 
             final ChannelOutboundBuffer outboundBuffer = this.outboundBuffer;
             if (outboundBuffer == null || outboundBuffer.isEmpty()) {
@@ -1004,6 +1014,9 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
             }
 
             try {
+                /**
+                 * 真正给客户端 响应 数据
+                 */
                 doWrite(outboundBuffer);
             } catch (Throwable t) {
                 if (t instanceof IOException && config().isAutoClose()) {

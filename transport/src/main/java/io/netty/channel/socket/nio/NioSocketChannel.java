@@ -381,6 +381,9 @@ public class NioSocketChannel extends AbstractNioByteChannel implements io.netty
     //处理后响应客户端  向客户端写数据
     @Override
     protected void doWrite(ChannelOutboundBuffer in) throws Exception {
+        /**
+         * 真正给客户端 响应 数据
+         */
         SocketChannel ch = javaChannel();
         int writeSpinCount = config().getWriteSpinCount();
         do {
