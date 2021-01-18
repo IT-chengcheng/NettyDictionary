@@ -16,7 +16,7 @@
 package io.netty.handler.codec.string;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -57,7 +57,7 @@ import java.util.List;
  * 1、首先看上面英文注释！！
  * 2、
  */
-@Sharable
+@Shareable
 public class StringDecoder extends MessageToMessageDecoder<ByteBuf> {
 
     // TODO Use CharsetDecoder instead.

@@ -77,6 +77,6 @@ public class Http2ServerUpgradeCodecTest {
         assertNull(channel.readOutbound());
     }
 
-    @ChannelHandler.Sharable
+    @ChannelHandler.Shareable
     private static final class HttpInboundHandler extends ChannelInboundHandlerAdapter { }
 }

@@ -138,6 +138,6 @@ public class Http2MultiplexCodecTransportTest {
         serverAckAllLatch.await();
     }
 
-    @ChannelHandler.Sharable
+    @ChannelHandler.Shareable
     private static final class HttpInboundHandler extends ChannelInboundHandlerAdapter { }
 }

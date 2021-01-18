@@ -114,7 +114,7 @@ import java.lang.annotation.Target;
  *     // your methods here
  * }
  *
- * {@code @Sharable}
+ * {@code @Shareable}
  * public class DataServerHandler extends {@link SimpleChannelInboundHandler}&lt;Message&gt; {
  *     private final {@link AttributeKey}&lt;{@link Boolean}&gt; auth =
  *           {@link AttributeKey#valueOf(String) AttributeKey.valueOf("auth")};
@@ -151,12 +151,12 @@ import java.lang.annotation.Target;
  * </pre>
  *
  *
- * <h4>The {@code @Sharable} annotation</h4>
+ * <h4>The {@code @Shareable} annotation</h4>
  * <p>
  * In the example above which used an {@link AttributeKey},
- * you might have noticed the {@code @Sharable} annotation.
+ * you might have noticed the {@code @Shareable} annotation.
  * <p>
- * If a {@link ChannelHandler} is annotated with the {@code @Sharable}
+ * If a {@link ChannelHandler} is annotated with the {@code @Shareable}
  * annotation, it means you can create an instance of the handler just once and
  * add it to one or more {@link ChannelPipeline}s multiple times without
  * a race condition.
@@ -213,7 +213,7 @@ public interface ChannelHandler {
     @Documented
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface Sharable {
+    @interface Shareable {
         // no value
     }
 }

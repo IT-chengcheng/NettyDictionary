@@ -36,7 +36,7 @@ public class ThreadPerChannelEventLoopGroupTest {
 
     private static final ChannelHandler NOOP_HANDLER = new ChannelHandlerAdapter() {
         @Override
-        public boolean isSharable() {
+        public boolean isShareable() {
             return true;
         }
     };

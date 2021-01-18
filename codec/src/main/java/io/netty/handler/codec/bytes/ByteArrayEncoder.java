@@ -17,7 +17,7 @@ package io.netty.handler.codec.bytes;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
@@ -50,7 +50,7 @@ import java.util.List;
  * }
  * </pre>
  */
-@Sharable
+@Shareable
 public class ByteArrayEncoder extends MessageToMessageEncoder<byte[]> {
     @Override
     protected void encode(ChannelHandlerContext ctx, byte[] msg, List<Object> out) throws Exception {

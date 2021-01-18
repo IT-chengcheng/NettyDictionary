@@ -15,14 +15,14 @@
  */
 package io.netty.example.telnet;
 
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 /**
  * Handles a client-side channel.
  */
-@Sharable
+@Shareable
 public class TelnetClientHandler extends SimpleChannelInboundHandler<String> {
 
     @Override

@@ -60,27 +60,27 @@ public class DatagramPacketDecoderTest {
     }
 
     @Test
-    public void testIsNotSharable() {
-        testIsSharable(false);
+    public void testIsNotShareable() {
+        testIsShareable(false);
     }
 
     @Test
-    public void testIsSharable() {
-        testIsSharable(true);
+    public void testIsShareable() {
+        testIsShareable(true);
     }
 
-    private static void testIsSharable(boolean sharable) {
-        MessageToMessageDecoder<ByteBuf> wrapped = new TestMessageToMessageDecoder(sharable);
+    private static void testIsShareable(boolean shareable) {
+        MessageToMessageDecoder<ByteBuf> wrapped = new TestMessageToMessageDecoder(shareable);
         DatagramPacketDecoder decoder = new DatagramPacketDecoder(wrapped);
-        assertEquals(wrapped.isSharable(), decoder.isSharable());
+        assertEquals(wrapped.isShareable(), decoder.isShareable());
     }
 
     private static final class TestMessageToMessageDecoder extends MessageToMessageDecoder<ByteBuf> {
 
-        private final boolean sharable;
+        private final boolean shareable;
 
-        TestMessageToMessageDecoder(boolean sharable) {
-            this.sharable = sharable;
+        TestMessageToMessageDecoder(boolean shareable) {
+            this.shareable = shareable;
         }
 
         @Override
@@ -89,8 +89,8 @@ public class DatagramPacketDecoderTest {
         }
 
         @Override
-        public boolean isSharable() {
-            return sharable;
+        public boolean isShareable() {
+            return shareable;
         }
     }
 }

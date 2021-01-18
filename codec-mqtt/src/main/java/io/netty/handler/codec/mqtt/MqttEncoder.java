@@ -33,7 +33,7 @@ import static io.netty.handler.codec.mqtt.MqttCodecUtil.*;
  * Encodes Mqtt messages into bytes following the protocol specification v3.1
  * as described here <a href="http://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html">MQTTV3.1</a>
  */
-@ChannelHandler.Sharable
+@ChannelHandler.Shareable
 public final class MqttEncoder extends MessageToMessageEncoder<MqttMessage> {
 
     public static final MqttEncoder INSTANCE = new MqttEncoder();

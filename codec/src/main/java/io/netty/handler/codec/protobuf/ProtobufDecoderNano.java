@@ -21,7 +21,7 @@ import java.util.List;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.ByteToMessageDecoder;
@@ -59,7 +59,7 @@ import io.netty.util.internal.ObjectUtil;
  * }
  * </pre>
  */
-@Sharable
+@Shareable
 public class ProtobufDecoderNano extends MessageToMessageDecoder<ByteBuf> {
     private final Class<? extends MessageNano> clazz;
     /**

@@ -17,7 +17,7 @@
 package io.netty.handler.codec.socksx.v5;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -26,7 +26,7 @@ import io.netty.util.internal.StringUtil;
 /**
  * Encodes a server-side {@link Socks5Message} into a {@link ByteBuf}.
  */
-@Sharable
+@Shareable
 public class Socks5ServerEncoder extends MessageToByteEncoder<Socks5Message> {
 
     public static final Socks5ServerEncoder DEFAULT = new Socks5ServerEncoder(Socks5AddressEncoder.DEFAULT);

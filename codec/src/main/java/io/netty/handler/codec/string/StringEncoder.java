@@ -17,7 +17,7 @@ package io.netty.handler.codec.string;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.LineBasedFrameDecoder;
@@ -48,7 +48,7 @@ import java.util.List;
  * }
  * </pre>
  */
-@Sharable
+@Shareable
 public class StringEncoder extends MessageToMessageEncoder<CharSequence> {
 
     // TODO Use CharsetEncoder instead.

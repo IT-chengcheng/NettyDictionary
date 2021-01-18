@@ -26,7 +26,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
  * Use this with {@link SocksInitRequest}, {@link SocksInitResponse}, {@link SocksAuthRequest},
  * {@link SocksAuthResponse}, {@link SocksCmdRequest} and {@link SocksCmdResponse}
  */
-@ChannelHandler.Sharable
+@ChannelHandler.Shareable
 public class SocksMessageEncoder extends MessageToByteEncoder<SocksMessage> {
     @Override
     @SuppressWarnings("deprecation")

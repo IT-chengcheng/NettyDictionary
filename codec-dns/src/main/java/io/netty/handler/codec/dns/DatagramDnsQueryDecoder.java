@@ -31,7 +31,7 @@ import static io.netty.util.internal.ObjectUtil.checkNotNull;
  * Decodes a {@link DatagramPacket} into a {@link DatagramDnsQuery}.
  */
 @UnstableApi
-@ChannelHandler.Sharable
+@ChannelHandler.Shareable
 public class DatagramDnsQueryDecoder extends MessageToMessageDecoder<DatagramPacket> {
 
     private final DnsRecordDecoder recordDecoder;

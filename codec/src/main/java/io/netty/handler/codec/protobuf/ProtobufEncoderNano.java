@@ -56,7 +56,7 @@ import io.netty.handler.codec.MessageToMessageEncoder;
  * }
  * </pre>
  */
-@ChannelHandler.Sharable
+@ChannelHandler.Shareable
 public class ProtobufEncoderNano extends MessageToMessageEncoder<MessageNano> {
     @Override
     protected void encode(

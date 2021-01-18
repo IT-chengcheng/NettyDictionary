@@ -142,7 +142,7 @@ public class DatagramPacketEncoder<M> extends MessageToMessageEncoder<AddressedE
     }
 
     @Override
-    public boolean isSharable() {
-        return encoder.isSharable();
+    public boolean isShareable() {
+        return encoder.isShareable();
     }
 }

@@ -16,7 +16,7 @@
 package io.netty.handler.codec.marshalling;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
@@ -34,7 +34,7 @@ import org.jboss.marshalling.Marshaller;
  * for more information
  *
  */
-@Sharable
+@Shareable
 public class MarshallingEncoder extends MessageToByteEncoder<Object> {
 
     private static final byte[] LENGTH_PLACEHOLDER = new byte[4];

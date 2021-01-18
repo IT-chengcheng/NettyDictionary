@@ -8,7 +8,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.CharsetUtil;
 
 //客户端业务处理类
-@ChannelHandler.Sharable
+@ChannelHandler.Shareable
 public class NettyTestHendler extends ChannelInboundHandlerAdapter{
 
     //通道准备就绪事件

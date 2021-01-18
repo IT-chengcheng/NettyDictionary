@@ -20,7 +20,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -219,7 +219,7 @@ public class SocketSslClientRenegotiateTest extends AbstractSocketTest {
         serverSslHandler = null;
     }
 
-    @Sharable
+    @Shareable
     private static final class TestHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
         protected final AtomicReference<Throwable> exception;

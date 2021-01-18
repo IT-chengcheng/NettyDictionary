@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 public class Http2MultiplexCodecClientUpgradeTest {
 
-    @ChannelHandler.Sharable
+    @ChannelHandler.Shareable
     private final class NoopHandler extends ChannelInboundHandlerAdapter {
         @Override
         public void channelActive(ChannelHandlerContext ctx) {

@@ -63,7 +63,7 @@ import java.util.List;
  * <h3>Pitfalls</h3>
  * <p>
  * Be aware that sub-classes of {@link ByteToMessageDecoder} <strong>MUST NOT</strong>
- * annotated with {@link @Sharable}.
+ * annotated with {@link @Shareable}.
  * <p>
  * Some methods such as {@link ByteBuf#readBytes(int)} will cause a memory leak if the returned buffer
  * is not released or added to the <tt>out</tt> {@link List}. Use derived buffers like {@link ByteBuf#readSlice(int)}
@@ -175,7 +175,7 @@ public abstract class ByteToMessageDecoder extends ChannelInboundHandlerAdapter 
     private int numReads;
 
     protected ByteToMessageDecoder() {
-        ensureNotSharable();
+        ensureNotShareable();
     }
 
     /**

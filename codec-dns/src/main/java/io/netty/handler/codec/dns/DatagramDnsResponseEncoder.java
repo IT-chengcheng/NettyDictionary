@@ -33,7 +33,7 @@ import static io.netty.util.internal.ObjectUtil.checkNotNull;
  * {@link DatagramPacket}.
  */
 @UnstableApi
-@ChannelHandler.Sharable
+@ChannelHandler.Shareable
 public class DatagramDnsResponseEncoder
     extends MessageToMessageEncoder<AddressedEnvelope<DnsResponse, InetSocketAddress>> {
 

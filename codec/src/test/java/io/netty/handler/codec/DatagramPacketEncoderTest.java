@@ -97,31 +97,31 @@ public class DatagramPacketEncoderTest {
     }
 
     @Test
-    public void testIsNotSharable() {
-        testSharable(false);
+    public void testIsNotShareable() {
+        testShareable(false);
     }
 
     @Test
-    public void testIsSharable() {
-        testSharable(true);
+    public void testIsShareable() {
+        testShareable(true);
     }
 
-    private static void testSharable(boolean sharable) {
+    private static void testShareable(boolean shareable) {
         MessageToMessageEncoder<AddressedEnvelope<ByteBuf, InetSocketAddress>> wrapped =
-                new TestMessageToMessageEncoder(sharable);
+                new TestMessageToMessageEncoder(shareable);
 
         DatagramPacketEncoder<AddressedEnvelope<ByteBuf, InetSocketAddress>> encoder =
                 new DatagramPacketEncoder<AddressedEnvelope<ByteBuf, InetSocketAddress>>(wrapped);
-        assertEquals(wrapped.isSharable(), encoder.isSharable());
+        assertEquals(wrapped.isShareable(), encoder.isShareable());
     }
 
     private static final class TestMessageToMessageEncoder
             extends MessageToMessageEncoder<AddressedEnvelope<ByteBuf, InetSocketAddress>> {
 
-        private final boolean sharable;
+        private final boolean shareable;
 
-        TestMessageToMessageEncoder(boolean sharable) {
-            this.sharable = sharable;
+        TestMessageToMessageEncoder(boolean shareable) {
+            this.shareable = shareable;
         }
 
         @Override
@@ -132,8 +132,8 @@ public class DatagramPacketEncoderTest {
         }
 
         @Override
-        public boolean isSharable() {
-            return sharable;
+        public boolean isShareable() {
+            return shareable;
         }
     }
 }

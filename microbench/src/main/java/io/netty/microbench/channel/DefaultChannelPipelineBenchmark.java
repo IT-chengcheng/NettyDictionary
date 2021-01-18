@@ -39,7 +39,7 @@ public class DefaultChannelPipelineBenchmark extends AbstractMicrobenchmark {
 
     private static final ChannelHandler NOOP_HANDLER = new ChannelInboundHandlerAdapter() {
         @Override
-        public boolean isSharable() {
+        public boolean isShareable() {
             return true;
         }
     };
@@ -51,7 +51,7 @@ public class DefaultChannelPipelineBenchmark extends AbstractMicrobenchmark {
         }
 
         @Override
-        public boolean isSharable() {
+        public boolean isShareable() {
             return true;
         }
     };

@@ -29,7 +29,7 @@ import java.util.List;
  * This can be thought of as a combination of {@link ByteToMessageDecoder} and {@link MessageToByteEncoder}.
  *
  * Be aware that sub-classes of {@link ByteToMessageCodec} <strong>MUST NOT</strong>
- * annotated with {@link @Sharable}.
+ * annotated with {@link @Shareable}.
  */
 public abstract class ByteToMessageCodec<I> extends ChannelDuplexHandler {
 
@@ -70,7 +70,7 @@ public abstract class ByteToMessageCodec<I> extends ChannelDuplexHandler {
      *                              {@link ByteBuf}, which is backed by an byte array.
      */
     protected ByteToMessageCodec(boolean preferDirect) {
-        ensureNotSharable();
+        ensureNotShareable();
         outboundMsgMatcher = TypeParameterMatcher.find(this, ByteToMessageCodec.class, "I");
         encoder = new Encoder(preferDirect);
     }
@@ -84,7 +84,7 @@ public abstract class ByteToMessageCodec<I> extends ChannelDuplexHandler {
      *                              {@link ByteBuf}, which is backed by an byte array.
      */
     protected ByteToMessageCodec(Class<? extends I> outboundMessageType, boolean preferDirect) {
-        ensureNotSharable();
+        ensureNotShareable();
         outboundMsgMatcher = TypeParameterMatcher.get(outboundMessageType);
         encoder = new Encoder(preferDirect);
     }

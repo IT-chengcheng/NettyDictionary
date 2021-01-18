@@ -110,7 +110,7 @@ public class DatagramPacketDecoder extends MessageToMessageDecoder<DatagramPacke
     }
 
     @Override
-    public boolean isSharable() {
-        return decoder.isSharable();
+    public boolean isShareable() {
+        return decoder.isShareable();
     }
 }

@@ -24,7 +24,7 @@ import io.netty.handler.codec.http.websocketx.extensions.WebSocketClientExtensio
  *
  * See <tt>io.netty.example.http.websocketx.client.WebSocketClient</tt> for usage.
  */
-@ChannelHandler.Sharable
+@ChannelHandler.Shareable
 public final class WebSocketClientCompressionHandler extends WebSocketClientExtensionHandler {
 
     public static final WebSocketClientCompressionHandler INSTANCE = new WebSocketClientCompressionHandler();

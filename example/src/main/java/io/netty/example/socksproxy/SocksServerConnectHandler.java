@@ -35,7 +35,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.Promise;
 
-@ChannelHandler.Sharable
+@ChannelHandler.Shareable
 public final class SocksServerConnectHandler extends SimpleChannelInboundHandler<SocksMessage> {
 
     private final Bootstrap b = new Bootstrap();

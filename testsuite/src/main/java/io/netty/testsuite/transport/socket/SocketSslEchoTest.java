@@ -21,7 +21,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -436,7 +436,7 @@ public class SocketSslEchoTest extends AbstractSocketTest {
                 serverSslHandler.engine().getSession().getCipherSuite());
     }
 
-    @Sharable
+    @Shareable
     private abstract class EchoHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
         protected final AtomicInteger recvCounter;

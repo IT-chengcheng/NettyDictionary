@@ -34,15 +34,15 @@ public class Http2MultiplexCodecBuilder
 
     Http2MultiplexCodecBuilder(boolean server, ChannelHandler childHandler) {
         server(server);
-        this.childHandler = checkSharable(checkNotNull(childHandler, "childHandler"));
+        this.childHandler = checkShareable(checkNotNull(childHandler, "childHandler"));
         // For backwards compatibility we should disable to timeout by default at this layer.
         gracefulShutdownTimeoutMillis(0);
     }
 
-    private static ChannelHandler checkSharable(ChannelHandler handler) {
-        if ((handler instanceof ChannelHandlerAdapter && !((ChannelHandlerAdapter) handler).isSharable()) &&
-                !handler.getClass().isAnnotationPresent(ChannelHandler.Sharable.class)) {
-            throw new IllegalArgumentException("The handler must be Sharable");
+    private static ChannelHandler checkShareable(ChannelHandler handler) {
+        if ((handler instanceof ChannelHandlerAdapter && !((ChannelHandlerAdapter) handler).isShareable()) &&
+                !handler.getClass().isAnnotationPresent(ChannelHandler.Shareable.class)) {
+            throw new IllegalArgumentException("The handler must be Shareable");
         }
         return handler;
     }
@@ -57,7 +57,7 @@ public class Http2MultiplexCodecBuilder
      * Creates a builder for a HTTP/2 client.
      *
      * @param childHandler the handler added to channels for remotely-created streams. It must be
-     *     {@link ChannelHandler.Sharable}.
+     *     {@link ChannelHandler.Shareable}.
      */
     public static Http2MultiplexCodecBuilder forClient(ChannelHandler childHandler) {
         return new Http2MultiplexCodecBuilder(false, childHandler);
@@ -67,7 +67,7 @@ public class Http2MultiplexCodecBuilder
      * Creates a builder for a HTTP/2 server.
      *
      * @param childHandler the handler added to channels for remotely-created streams. It must be
-     *     {@link ChannelHandler.Sharable}.
+     *     {@link ChannelHandler.Shareable}.
      */
     public static Http2MultiplexCodecBuilder forServer(ChannelHandler childHandler) {
         return new Http2MultiplexCodecBuilder(true, childHandler);

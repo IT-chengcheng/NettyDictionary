@@ -30,21 +30,21 @@ public abstract class ChannelHandlerAdapter implements ChannelHandler {
     boolean added;
 
     /**
-     * Throws {@link IllegalStateException} if {@link ChannelHandlerAdapter#isSharable()} returns {@code true}
+     * Throws {@link IllegalStateException} if {@link ChannelHandlerAdapter#isShareable()} returns {@code true}
      */
-    protected void ensureNotSharable() {
-        if (isSharable()) {
+    protected void ensureNotShareable() {
+        if (isShareable()) {
             throw new IllegalStateException("ChannelHandler " + getClass().getName() + " is not allowed to be shared");
         }
     }
 
     /**
-     * Return {@code true} if the implementation is {@link Sharable} and so can be added
+     * Return {@code true} if the implementation is {@link Shareable} and so can be added
      * to different {@link ChannelPipeline}s.
      */
-    public boolean isSharable() {
+    public boolean isShareable() {
         /**
-         * Cache the result of {@link Sharable} annotation detection to workaround a condition. We use a
+         * Cache the result of {@link Shareable} annotation detection to workaround a condition. We use a
          * {@link ThreadLocal} and {@link WeakHashMap} to eliminate the volatile write/reads. Using different
          * {@link WeakHashMap} instances per {@link Thread} is good enough for us and the number of
          * {@link Thread}s are quite limited anyway.
@@ -52,13 +52,13 @@ public abstract class ChannelHandlerAdapter implements ChannelHandler {
          * See <a href="https://github.com/netty/netty/issues/2289">#2289</a>.
          */
         Class<?> clazz = getClass();
-        Map<Class<?>, Boolean> cache = InternalThreadLocalMap.get().handlerSharableCache();
-        Boolean sharable = cache.get(clazz);
-        if (sharable == null) {
-            sharable = clazz.isAnnotationPresent(Sharable.class);
-            cache.put(clazz, sharable);
+        Map<Class<?>, Boolean> cache = InternalThreadLocalMap.get().handlerShareableCache();
+        Boolean shareable = cache.get(clazz);
+        if (shareable == null) {
+            shareable = clazz.isAnnotationPresent(Shareable.class);
+            cache.put(clazz, shareable);
         }
-        return sharable;
+        return shareable;
     }
 
     /**

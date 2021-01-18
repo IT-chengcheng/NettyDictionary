@@ -389,10 +389,10 @@ public class CombinedChannelDuplexHandlerTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testNotSharable() {
+    public void testNotShareable() {
         new CombinedChannelDuplexHandler<ChannelInboundHandler, ChannelOutboundHandler>() {
             @Override
-            public boolean isSharable() {
+            public boolean isShareable() {
                 return true;
             }
         };

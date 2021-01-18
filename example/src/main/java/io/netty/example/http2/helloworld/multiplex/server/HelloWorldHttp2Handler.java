@@ -21,7 +21,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http2.DefaultHttp2DataFrame;
 import io.netty.handler.codec.http2.DefaultHttp2Headers;
@@ -37,7 +37,7 @@ import io.netty.util.CharsetUtil;
  * <p>This example is making use of the "multiplexing" http2 API, where streams are mapped to child
  * Channels. This API is very experimental and incomplete.
  */
-@Sharable
+@Shareable
 public class HelloWorldHttp2Handler extends ChannelDuplexHandler {
 
     static final ByteBuf RESPONSE_BYTES = unreleasableBuffer(copiedBuffer("Hello World", CharsetUtil.UTF_8));

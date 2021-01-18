@@ -29,12 +29,12 @@ import static org.junit.Assert.*;
 public class ByteToMessageCodecTest {
 
     @Test(expected = IllegalStateException.class)
-    public void testSharable() {
+    public void testShareable() {
         new InvalidByteToMessageCodec();
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testSharable2() {
+    public void testShareable2() {
         new InvalidByteToMessageCodec2();
     }
 
@@ -71,7 +71,7 @@ public class ByteToMessageCodecTest {
         assertNull(ch.readOutbound());
     }
 
-    @ChannelHandler.Sharable
+    @ChannelHandler.Shareable
     private static final class InvalidByteToMessageCodec extends ByteToMessageCodec<Integer> {
         InvalidByteToMessageCodec() {
             super(true);
@@ -84,7 +84,7 @@ public class ByteToMessageCodecTest {
         protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception { }
     }
 
-    @ChannelHandler.Sharable
+    @ChannelHandler.Shareable
     private static final class InvalidByteToMessageCodec2 extends ByteToMessageCodec<Integer> {
         InvalidByteToMessageCodec2() {
             super(Integer.class, true);

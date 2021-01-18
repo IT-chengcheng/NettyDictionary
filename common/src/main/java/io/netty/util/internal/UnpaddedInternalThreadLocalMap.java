@@ -41,7 +41,7 @@ class UnpaddedInternalThreadLocalMap {
     // Core thread-locals
     int futureListenerStackDepth;
     int localChannelReaderStackDepth;
-    Map<Class<?>, Boolean> handlerSharableCache;
+    Map<Class<?>, Boolean> handlerShareableCache;
     IntegerHolder counterHashCode;
     ThreadLocalRandom random;
     Map<Class<?>, TypeParameterMatcher> typeParameterMatcherGetCache;

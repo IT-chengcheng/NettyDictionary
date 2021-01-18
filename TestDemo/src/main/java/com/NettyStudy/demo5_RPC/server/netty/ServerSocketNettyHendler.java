@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@ChannelHandler.Sharable
+@ChannelHandler.Shareable
 public class ServerSocketNettyHendler extends ChannelInboundHandlerAdapter {
 
     public static ServerSocketNettyHendler serverSocketNettyHendler=new ServerSocketNettyHendler();

@@ -874,7 +874,7 @@ public class Http2StreamFrameToHttpObjectCodecTest {
     }
 
     @Test
-    public void testIsSharableBetweenChannels() throws Exception {
+    public void testIsShareableBetweenChannels() throws Exception {
         final Queue<Http2StreamFrame> frames = new ConcurrentLinkedQueue<Http2StreamFrame>();
         final ChannelHandler sharedHandler = new Http2StreamFrameToHttpObjectCodec(false);
 

@@ -19,7 +19,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.DefaultEventLoopGroup;
@@ -93,7 +93,7 @@ public class LocalTransportThreadModelTest2 {
         localChannel.closeFuture().awaitUninterruptibly();
     }
 
-    @Sharable
+    @Shareable
     static class LocalHandler extends ChannelInboundHandlerAdapter {
         private final String name;
 

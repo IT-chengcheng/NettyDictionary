@@ -30,7 +30,7 @@ import java.util.Set;
  * This class allows one to ensure that at all times for every IP address there is at most one
  * {@link Channel} connected to the server.
  */
-@ChannelHandler.Sharable
+@ChannelHandler.Shareable
 public class UniqueIpFilter extends AbstractRemoteAddressFilter<InetSocketAddress> {
 
     private final Set<InetAddress> connected = new ConcurrentSet<InetAddress>();

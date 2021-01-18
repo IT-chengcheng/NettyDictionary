@@ -19,7 +19,7 @@ import com.google.protobuf.Message;
 import com.google.protobuf.MessageLite;
 import com.google.protobuf.MessageLiteOrBuilder;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
@@ -58,7 +58,7 @@ import static io.netty.buffer.Unpooled.*;
  * }
  * </pre>
  */
-@Sharable
+@Shareable
 public class ProtobufEncoder extends MessageToMessageEncoder<MessageLiteOrBuilder> {
     @Override
     protected void encode(ChannelHandlerContext ctx, MessageLiteOrBuilder msg, List<Object> out)

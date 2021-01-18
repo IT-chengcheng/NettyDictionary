@@ -28,7 +28,7 @@ import java.util.List;
  * Decodes a {@link DatagramPacket} into a {@link DatagramDnsResponse}.
  */
 @UnstableApi
-@ChannelHandler.Sharable
+@ChannelHandler.Shareable
 public class DatagramDnsResponseDecoder extends MessageToMessageDecoder<DatagramPacket> {
 
     private final DnsResponseDecoder<InetSocketAddress> responseDecoder;

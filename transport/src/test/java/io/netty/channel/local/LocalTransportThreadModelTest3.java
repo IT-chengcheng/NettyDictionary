@@ -252,7 +252,7 @@ public class LocalTransportThreadModelTest3 {
         return expectedEvents;
     }
 
-    @ChannelHandler.Sharable
+    @ChannelHandler.Shareable
     private static final class EventForwarder extends ChannelDuplexHandler { }
 
     private static final class EventRecorder extends ChannelDuplexHandler {

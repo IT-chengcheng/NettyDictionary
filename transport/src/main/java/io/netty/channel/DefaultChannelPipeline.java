@@ -232,7 +232,7 @@ public class DefaultChannelPipeline implements ChannelPipeline {
         synchronized (this) {
             /**
              * 检查 是否添加了 h.added ？，将属性 added = true
-             *      是否 h.isSharable() ？
+             *      是否 h.isShareable() ？
              */
             checkMultiplicity(handler);
 
@@ -687,10 +687,10 @@ public class DefaultChannelPipeline implements ChannelPipeline {
     private static void checkMultiplicity(ChannelHandler handler) {
         if (handler instanceof ChannelHandlerAdapter) {
             ChannelHandlerAdapter h = (ChannelHandlerAdapter) handler;
-            if (!h.isSharable() && h.added) {
+            if (!h.isShareable() && h.added) {
                 throw new ChannelPipelineException(
                         h.getClass().getName() +
-                        " is not a @Sharable handler, so can't be added or removed multiple times.");
+                        " is not a @Shareable handler, so can't be added or removed multiple times.");
             }
             h.added = true;
         }

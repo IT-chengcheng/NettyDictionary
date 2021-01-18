@@ -93,7 +93,7 @@ public class ServerSocketSuspendTest extends AbstractServerSocketTest {
         }
     }
 
-    @ChannelHandler.Sharable
+    @ChannelHandler.Shareable
     private static final class AcceptedChannelCounter extends ChannelInboundHandlerAdapter {
 
         final CountDownLatch latch;

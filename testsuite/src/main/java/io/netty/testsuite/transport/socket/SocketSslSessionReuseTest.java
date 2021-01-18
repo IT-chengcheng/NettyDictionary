@@ -22,7 +22,7 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
@@ -171,7 +171,7 @@ public class SocketSslSessionReuseTest extends AbstractSocketTest {
         return idSet;
     }
 
-    @Sharable
+    @Shareable
     private static class ReadAndDiscardHandler extends SimpleChannelInboundHandler<ByteBuf> {
         final AtomicReference<Throwable> exception = new AtomicReference<Throwable>();
         private final boolean server;

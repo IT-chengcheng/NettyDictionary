@@ -16,7 +16,7 @@
 package io.netty.handler.ipfilter;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.net.InetSocketAddress;
@@ -30,7 +30,7 @@ import java.net.SocketAddress;
  * If you would like to explicitly take action on rejected {@link Channel}s, you should override
  * {@link #channelRejected(ChannelHandlerContext, SocketAddress)}.
  */
-@Sharable
+@Shareable
 public class RuleBasedIpFilter extends AbstractRemoteAddressFilter<InetSocketAddress> {
 
     private final IpFilterRule[] rules;

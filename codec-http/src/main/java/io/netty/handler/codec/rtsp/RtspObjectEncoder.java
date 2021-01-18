@@ -16,7 +16,7 @@
 package io.netty.handler.codec.rtsp;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.handler.codec.http.FullHttpMessage;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpObjectEncoder;
@@ -27,7 +27,7 @@ import io.netty.handler.codec.http.HttpObjectEncoder;
  *
  * @deprecated Use {@link RtspEncoder} instead.
  */
-@Sharable
+@Shareable
 @Deprecated
 public abstract class RtspObjectEncoder<H extends HttpMessage> extends HttpObjectEncoder<H> {
 

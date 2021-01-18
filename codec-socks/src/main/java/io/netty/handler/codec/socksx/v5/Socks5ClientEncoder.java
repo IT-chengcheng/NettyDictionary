@@ -18,7 +18,7 @@ package io.netty.handler.codec.socksx.v5;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.MessageToByteEncoder;
@@ -30,7 +30,7 @@ import java.util.RandomAccess;
 /**
  * Encodes a client-side {@link Socks5Message} into a {@link ByteBuf}.
  */
-@Sharable
+@Shareable
 public class Socks5ClientEncoder extends MessageToByteEncoder<Socks5Message> {
 
     public static final Socks5ClientEncoder DEFAULT = new Socks5ClientEncoder();

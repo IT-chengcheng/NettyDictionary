@@ -202,7 +202,7 @@ public class EpollReuseAddrTest {
         return false;
     }
 
-    @ChannelHandler.Sharable
+    @ChannelHandler.Shareable
     private static class ServerSocketTestHandler extends ChannelInboundHandlerAdapter {
         private final AtomicBoolean accepted;
 
@@ -217,7 +217,7 @@ public class EpollReuseAddrTest {
         }
     }
 
-    @ChannelHandler.Sharable
+    @ChannelHandler.Shareable
     private static class DatagramSocketTestHandler extends ChannelInboundHandlerAdapter {
         private final AtomicBoolean received;
 
@@ -232,6 +232,6 @@ public class EpollReuseAddrTest {
         }
     }
 
-    @ChannelHandler.Sharable
+    @ChannelHandler.Shareable
     private static final class DummyHandler extends ChannelHandlerAdapter { }
 }

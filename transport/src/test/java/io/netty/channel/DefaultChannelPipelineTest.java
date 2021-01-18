@@ -20,7 +20,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerMask.Skip;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.channel.local.LocalAddress;
@@ -1901,7 +1901,7 @@ public class DefaultChannelPipelineTest {
         return new TestHandler();
     }
 
-    @Sharable
+    @Shareable
     private static class TestHandler extends ChannelDuplexHandler { }
 
     private static class BufferedTestHandler extends ChannelDuplexHandler {

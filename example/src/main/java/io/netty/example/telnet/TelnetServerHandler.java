@@ -17,7 +17,7 @@ package io.netty.example.telnet;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -27,7 +27,7 @@ import java.util.Date;
 /**
  * Handles a server-side channel.
  */
-@Sharable
+@Shareable
 public class TelnetServerHandler extends SimpleChannelInboundHandler<String> {
 
     @Override

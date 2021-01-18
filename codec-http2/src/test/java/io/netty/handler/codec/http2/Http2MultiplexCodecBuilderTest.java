@@ -22,7 +22,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -68,7 +68,7 @@ public class Http2MultiplexCodecBuilderTest {
     public void setUp() throws InterruptedException {
         final CountDownLatch serverChannelLatch = new CountDownLatch(1);
         LocalAddress serverAddress = new LocalAddress(getClass().getName());
-        serverLastInboundHandler = new SharableLastInboundHandler();
+        serverLastInboundHandler = new ShareableLastInboundHandler();
         ServerBootstrap sb = new ServerBootstrap()
                 .channel(LocalServerChannel.class)
                 .group(group)
@@ -213,8 +213,8 @@ public class Http2MultiplexCodecBuilderTest {
         serverLastInboundHandler.checkException();
     }
 
-    @Sharable
-    private static class SharableLastInboundHandler extends LastInboundHandler {
+    @Shareable
+    private static class ShareableLastInboundHandler extends LastInboundHandler {
 
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -227,32 +227,32 @@ public class Http2MultiplexCodecBuilderTest {
         }
     }
 
-    private static class SharableChannelHandler1 extends ChannelHandlerAdapter {
+    private static class ShareableChannelHandler1 extends ChannelHandlerAdapter {
         @Override
-        public boolean isSharable() {
+        public boolean isShareable() {
             return true;
         }
     }
 
-    @Sharable
-    private static class SharableChannelHandler2 extends ChannelHandlerAdapter {
+    @Shareable
+    private static class ShareableChannelHandler2 extends ChannelHandlerAdapter {
     }
 
-    private static class UnsharableChannelHandler extends ChannelHandlerAdapter {
+    private static class UnshareableChannelHandler extends ChannelHandlerAdapter {
         @Override
-        public boolean isSharable() {
+        public boolean isShareable() {
             return false;
         }
     }
 
     @Test
-    public void testSharableCheck() {
-        assertNotNull(Http2MultiplexCodecBuilder.forServer(new SharableChannelHandler1()));
-        assertNotNull(Http2MultiplexCodecBuilder.forServer(new SharableChannelHandler2()));
+    public void testShareableCheck() {
+        assertNotNull(Http2MultiplexCodecBuilder.forServer(new ShareableChannelHandler1()));
+        assertNotNull(Http2MultiplexCodecBuilder.forServer(new ShareableChannelHandler2()));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testUnsharableHandler() {
-        Http2MultiplexCodecBuilder.forServer(new UnsharableChannelHandler());
+    public void testUnshareableHandler() {
+        Http2MultiplexCodecBuilder.forServer(new UnshareableChannelHandler());
     }
 }

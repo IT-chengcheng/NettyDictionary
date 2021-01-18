@@ -141,7 +141,7 @@ public final class InternalThreadLocalMap extends UnpaddedInternalThreadLocalMap
         if (localChannelReaderStackDepth != 0) {
             count ++;
         }
-        if (handlerSharableCache != null) {
+        if (handlerShareableCache != null) {
             count ++;
         }
         if (counterHashCode != null) {
@@ -267,11 +267,11 @@ public final class InternalThreadLocalMap extends UnpaddedInternalThreadLocalMap
         this.counterHashCode = counterHashCode;
     }
 
-    public Map<Class<?>, Boolean> handlerSharableCache() {
-        Map<Class<?>, Boolean> cache = handlerSharableCache;
+    public Map<Class<?>, Boolean> handlerShareableCache() {
+        Map<Class<?>, Boolean> cache = handlerShareableCache;
         if (cache == null) {
             // Start with small capacity to keep memory overhead as low as possible.
-            handlerSharableCache = cache = new WeakHashMap<Class<?>, Boolean>(4);
+            handlerShareableCache = cache = new WeakHashMap<Class<?>, Boolean>(4);
         }
         return cache;
     }

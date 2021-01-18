@@ -15,7 +15,7 @@
  */
 package io.netty.example.udt.echo.bytes;
 
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandler.Shareable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.udt.nio.NioUdtProvider;
@@ -23,7 +23,7 @@ import io.netty.channel.udt.nio.NioUdtProvider;
 /**
  * Handler implementation for the echo server.
  */
-@Sharable
+@Shareable
 public class ByteEchoServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
