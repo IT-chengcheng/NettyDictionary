@@ -77,6 +77,12 @@ final class ChannelHandlerMask {
         Map<Class<? extends ChannelHandler>, Integer> cache = MASKS.get();
         Integer mask = cache.get(clazz);
         if (mask == null) {
+            /**
+             * 计算出 每一种 context（handler）专属的  executionMask
+             * executionMask 用处：
+             * 用来寻找 当前 context（handler）下一个 入栈处理器
+             * 或者 寻找 当前 context（handler）上一个 出栈处理器
+             */
             mask = mask0(clazz);
             cache.put(clazz, mask);
         }
@@ -87,6 +93,12 @@ final class ChannelHandlerMask {
      * Calculate the {@code executionMask}.
      */
     private static int mask0(Class<? extends ChannelHandler> handlerType) {
+        /**
+         * 计算出 每一种 context（handler）专属的  executionMask
+         * executionMask 用处：
+         * 用来寻找 当前 context（handler）下一个 入栈处理器
+         * 或者 寻找 当前 context（handler）上一个 出栈处理器
+         */
         int mask = MASK_EXCEPTION_CAUGHT;
         try {
             if (ChannelInboundHandler.class.isAssignableFrom(handlerType)) {
