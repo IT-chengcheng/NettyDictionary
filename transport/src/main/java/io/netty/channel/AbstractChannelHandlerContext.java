@@ -987,7 +987,7 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
         } while ((ctx.executionMask & mask) == 0);
         return ctx;
         /**
-         * pipeline 结构： ** 入栈处理器； && 代表出栈处理器
+         * pipeline 结构： ** 入栈处理器； && 代表出栈处理器.
          *
          * head  **1  **2  &&1  &&2  **3  **4  &&3 tail    入栈、出栈 各自有序
          *
