@@ -1489,6 +1489,9 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
         @Override
         public void read(ChannelHandlerContext ctx) {
+            /**
+             * 在 register() 的方法的 pipeline.fireChannelActive() 中触发
+             */
             unsafe.beginRead();
         }
 
@@ -1526,8 +1529,10 @@ public class DefaultChannelPipeline implements ChannelPipeline {
 
         @Override
         public void channelActive(ChannelHandlerContext ctx) {
+            // 1、来了新连接
             ctx.fireChannelActive();
 
+            // 2 执行 handler  read（）方法，改变 socketChannel的 感兴趣事件为 READ
             readIfIsAutoRead();
         }
 

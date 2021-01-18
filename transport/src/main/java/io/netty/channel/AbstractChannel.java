@@ -295,6 +295,10 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
 
     @Override
     public Channel read() {
+        /**
+         * 在 register() 的方法的 pipeline.fireChannelActive() 中触发
+         */
+
         pipeline.read();
         return this;
     }
@@ -572,12 +576,17 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                  * 只有当通道从未被注册时，才激活该通道。这可以防止解雇
                  * 如果取消注册并重新注册通道，则多个通道将激活。
                  * isActive() 就是判断 serverSocketChannel.isOpen()
+                 * 什么时候 返回 True ? 当来了一个socket连接时，boss交给了workGroup
+                 * workGroup开启了第一个线程，并且在线程里 开启register()任务，然后进到这里，然后 isActive()返回true
                  */
                 if (isActive()) {
                     if (firstRegistration) {
                         /**  如果是首次注册
                          * 下面方法的执行流程跟上面“pipeline.fireChannelRegistered()”一模一样
                          * 都是 执行 pipeline链中，一个接一个的执行 handler 的 fireChannelActive()方法
+                         *
+                         * 这里会最终执行到 pipeline的 每一个 出栈处理器的 read（）方法，最终到达 head 节点
+                         * 在head节点的read方法里  改变了当前 socketChannel的感兴趣事件为 READ
                          */
                         pipeline.fireChannelActive();
                     } else if (config().isAutoRead()) {
@@ -910,6 +919,9 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
         public final void beginRead() {
             assertEventLoop();
 
+            /**
+             * 在 register() 的方法的 pipeline.fireChannelActive() 中触发
+             */
             if (!isActive()) {
                 return;
             }
