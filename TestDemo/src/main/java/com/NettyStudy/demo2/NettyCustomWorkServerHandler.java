@@ -19,8 +19,8 @@ public class NettyCustomWorkServerHandler extends ChannelInboundHandlerAdapter{
         String byteBuf= (String) msg;
         System.out.println("客户端发来消息:"+byteBuf + " 当前线程ID: "+ Thread.currentThread().getId());
 //        ctx.fireChannelRead(msg);
-        ctx.writeAndFlush(Unpooled.copiedBuffer("同好"+System.getProperty("line.separator"),CharsetUtil.UTF_8));
-         ctx.channel().writeAndFlush("abc");
+       // ctx.writeAndFlush(Unpooled.copiedBuffer("同好"+System.getProperty("line.separator"),CharsetUtil.UTF_8));
+        ctx.channel().writeAndFlush("服务端说：你好");
 //        System.out.println(++count);
     }
 

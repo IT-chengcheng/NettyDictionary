@@ -860,7 +860,7 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
 
     @Override
     public ChannelFuture writeAndFlush(Object msg) {
-        // 直接执行 最后一个出栈处理器 -> head。也就是不执行 pipeline 链中 的 尾 -> 头
+
         return writeAndFlush(msg, newPromise());
     }
 

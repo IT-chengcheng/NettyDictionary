@@ -40,6 +40,7 @@ public class NettyServer {
             protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
                 nioSocketChannel.pipeline().addLast(
                         new StringDecoder(),
+                        new OutBoundAdapter(),
                         new NettyCustomWorkServerHandler(),
                         new StringEncoder());
             }
