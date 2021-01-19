@@ -3,9 +3,12 @@ package com.NettyStudy.demo4_heart;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 
@@ -27,5 +30,23 @@ public class TestServerLnitializer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast(new WebSocketServerProtocolHandler("/ws"));
         //定义自己的handler,主要是对请求进行处理和发送
         pipeline.addLast(new ChatHandler());
+
+        /*
+
+         1、 看上面的各种handler ，有很多是 extends ChannelDuplexHandler
+              只要带 Duplex（ /ˈdjuːpleks/ 双重的） 都是 即是入栈 又是出栈
+
+          2、下面的是 netty的 四大 解码器
+           DelimiterBasedFrameDecoder extends ByteToMessageDecoder
+           LineBasedFrameDecoder   extends ByteToMessageDecoder
+           LengthFieldBasedFrameDecoder   extends ByteToMessageDecoder
+           FixedLengthFrameDecoder   extends ByteToMessageDecoder
+
+           3、
+             解码器   StringDecoder extends MessageToMessageDecoder
+
+             编码器   StringEncoder extends MessageToMessageEncoder
+        */
+
     }
 }
