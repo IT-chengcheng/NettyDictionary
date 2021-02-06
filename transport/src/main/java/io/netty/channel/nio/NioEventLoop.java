@@ -379,7 +379,8 @@ public final class NioEventLoop extends SingleThreadEventLoop {
     }
 
     /**
-     * 创建新的selector替换当前的事件循环{@link Selector} 以解决臭名昭著的epoll CPU 100%  bug。
+     * Replaces the current {@link Selector}s of the child event loops with newly created {@link Selector}s to work
+     * around the  infamous /ˈɪnfəməs/ 无耻的；邪恶的 epoll 100% CPU bug.
      */
     public void rebuildSelector() {
         if (!inEventLoop()) {
@@ -846,16 +847,18 @@ public final class NioEventLoop extends SingleThreadEventLoop {
      */
     private void select(boolean oldWakenUp) throws IOException {
         Selector selector = this.selector;
-        try {
+        try{
+           // 这个 selectCnt的作用就用来辅助解决 JDK的空轮询bug
             int selectCnt = 0;
             long currentTimeNanos = System.nanoTime();
             //当scheduledTaskQueue为空时 selectDeadLineNanos=当前时间加一秒
             long selectDeadLineNanos = currentTimeNanos + delayNanos(currentTimeNanos);
 
             for (;;) {
-                //1.定时任务截止事时间快到了，中断本次轮询
+                //1.计算select（）的超时时间，这个计算标准取决于：定时任务截止时间
+                // 如果定时任务截止时间快到了，就中断本次轮询
                 long timeoutMillis = (selectDeadLineNanos - currentTimeNanos + 500000L) / 1000000L;
-                //当前的定时任务队列中有任务的截止事件快到了(<=0.5ms)，就跳出循环。
+                //当前的定时任务队列中有任务的截止时间快到了(<=0.5ms)，就跳出循环。
                 if (timeoutMillis <= 0) {
                     //如果到目前还没有进行过select操作  调用selectNow()
                     if (selectCnt == 0) {
@@ -909,20 +912,20 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                 }
 
                 long time = System.nanoTime();
-                //现在的时间-select阻塞的时间=>运行之前的时间
+
                 if (time - TimeUnit.MILLISECONDS.toNanos(timeoutMillis) >= currentTimeNanos) {
-                    // timeoutMillis在没有选择任何内容的情况下运行。
+                    //能进入这个判断，说明是由于select（）超时了，依旧没有读写事件发生
                     selectCnt = 1;
                 } else if (SELECTOR_AUTO_REBUILD_THRESHOLD > 0 &&
                         selectCnt >= SELECTOR_AUTO_REBUILD_THRESHOLD) {
-                    //如果selectCnt>=512就重新创建新的selector并替换
-                    //重建 Selector
+                    // 能进入这个判断说明 select（）发生了空轮询，这是JDK的bug，netty要通过重建selector规避这个bug
+                    //如果selectCnt >= 512 就重新创建新的selector并替换
                     selector = selectRebuildSelector(selectCnt);
                     selectCnt = 1;
                     break;
                 }
                 currentTimeNanos = time;
-            }
+            } //for 循环结尾
 
             if (selectCnt > MIN_PREMATURE_SELECTOR_RETURNS) {
                 if (logger.isDebugEnabled()) {
