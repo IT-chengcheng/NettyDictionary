@@ -20,7 +20,7 @@ public class BioClient {
                 if(s.trim().equals("by")){
                     break;
                 }
-                outputStream.write(s.getBytes());
+                outputStream.write(s.getBytes("utf-8"));
                 outputStream.flush();
             }
         } catch (IOException e) {
@@ -42,4 +42,5 @@ public class BioClient {
             }
         }
     }
+
 }

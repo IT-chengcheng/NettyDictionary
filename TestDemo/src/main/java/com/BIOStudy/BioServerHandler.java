@@ -24,12 +24,11 @@ public class BioServerHandler implements Runnable {
             outputStream=socket.getOutputStream();
             int count=0;
             String content=null;
-            byte[] bytes=new byte[1024];
+            byte[] bytes=new byte[1000];
             while ((count=inputStream.read(bytes))!=-1){
                 String line=new String(bytes,0,count,"utf-8");
-                System.out.println(line);
-                content=line.trim().equalsIgnoreCase("SJ")?new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()): "你发的啥？";
-                outputStream.write(content.getBytes());
+                System.out.println("服务端收到消息:"+line);
+                outputStream.write("收到你发的消息啦，你最近好吗？".getBytes("utf-8"));
                 outputStream.flush();
             }
         } catch (IOException e) {

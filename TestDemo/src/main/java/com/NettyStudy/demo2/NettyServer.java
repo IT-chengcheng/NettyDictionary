@@ -1,10 +1,7 @@
 package com.NettyStudy.demo2;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -46,10 +43,27 @@ public class NettyServer {
             }
         });
         System.out.println(".........server  init..........");
-        // 这里就是真正的启动过程了，绑定9090端口，等待服务器启动完毕，才会进入下行代码
+        /**
+         * 这里就是真正的启动过程了，绑定9090端口，等待服务器启动完毕，才会进入下行代码
+         * 生成一个异步对象ChannelFuture ，通过isDone()方法可以判定异步事件的执行情况
+         * bind（）是异步操作，sync()方法是等待异步事件执行完成
+         */
         ChannelFuture future = serverBootstrap.bind(9090).sync();
+
+        // 给future注册监听器，监听我们关心的事件
+        /*future.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess()){
+
+                }else {
+
+                }
+            }
+        });*/
         System.out.println(".........server start..........");
-        //等待服务端关闭socket
+        // 等待服务端监听端口关闭，closeFuture是异步操作
+        // 通过sync（）方法同步等待通道关闭处理完毕，这里会阻塞等待通道关闭完成，内部调用是Object的wait（）方法
         future.channel().closeFuture().sync();
 
         // 关闭两组死循环

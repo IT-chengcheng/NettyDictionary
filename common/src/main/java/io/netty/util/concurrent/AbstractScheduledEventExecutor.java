@@ -134,7 +134,7 @@ public abstract class AbstractScheduledEventExecutor extends AbstractEventExecut
         if (scheduledTaskQueue == null) {
             return null;
         }
-        return scheduledTaskQueue.peek();
+        return scheduledTaskQueue.peek(); // peek  读取数据
     }
 
     /**
